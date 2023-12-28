@@ -1,37 +1,110 @@
-# pkg-placeholder
+# query-templates
 
-[![npm version][npm-version-src]][npm-version-href]
-[![npm downloads][npm-downloads-src]][npm-downloads-href]
-[![bundle][bundle-src]][bundle-href]
-[![JSDocs][jsdocs-src]][jsdocs-href]
-[![License][license-src]][license-href]
+useQuery code generation template based on swagger-typescript-api and @tanstack/query
 
-_description_
+## Features
+- Automatically generate the queryKey creator
+- Automatically encapsulate api requests into useQuery and useMutation.
+- Typescript type hint in setQueryData
 
-> **Note**:
-> Replace `pkg-placeholder`, `_description_` and `antfu` globally to use this template.
+| template | react-query | vue-query |
+|--|--|--|
+| default | WIP... | WIP... |
+| modular | WIP... | ✅ |
 
-## Sponsors
+## Usage
 
-<p align="center">
-  <a href="https://cdn.jsdelivr.net/gh/antfu/static/sponsors.svg">
-    <img src='https://cdn.jsdelivr.net/gh/antfu/static/sponsors.svg'/>
-  </a>
-</p>
+``` ts
+import { Pet } from '__generated__/api/Pet'
+import { PetQuery, StoreQuery, usePetQueryUpdate } from '__generated__/api/Queries'
+import { Store } from '__generated__/api/Store'
 
-## License
+const petApi = new Pet()
 
-[MIT](./LICENSE) License © 2023-PRESENT [Anthony Fu](https://github.com/antfu)
+const petQuery = new PetQuery(petApi)
 
-<!-- Badges -->
+const { data: _data } = petQuery.useFindPetsByStatus({
+  //            ^? Ref<TypePet[]> | Ref<undefined>
+  query: {
+    status: ['sold'],
+  //  ^? ("available" | "pending" | "sold")[]
+  },
+})
 
-[npm-version-src]: https://img.shields.io/npm/v/pkg-placeholder?style=flat&colorA=080f12&colorB=1fa669
-[npm-version-href]: https://npmjs.com/package/pkg-placeholder
-[npm-downloads-src]: https://img.shields.io/npm/dm/pkg-placeholder?style=flat&colorA=080f12&colorB=1fa669
-[npm-downloads-href]: https://npmjs.com/package/pkg-placeholder
-[bundle-src]: https://img.shields.io/bundlephobia/minzip/pkg-placeholder?style=flat&colorA=080f12&colorB=1fa669&label=minzip
-[bundle-href]: https://bundlephobia.com/result?p=pkg-placeholder
-[license-src]: https://img.shields.io/github/license/antfu/pkg-placeholder.svg?style=flat&colorA=080f12&colorB=1fa669
-[license-href]: https://github.com/antfu/pkg-placeholder/blob/main/LICENSE
-[jsdocs-src]: https://img.shields.io/badge/jsdocs-reference-080f12?style=flat&colorA=080f12&colorB=1fa669
-[jsdocs-href]: https://www.jsdocs.io/package/pkg-placeholder
+const petQueryUpdate = usePetQueryUpdate()
+
+petQueryUpdate(
+  petQuery.createFindPetsByStatusQueryKey({
+    query: {
+      status: ['sold'],
+    //  ^? ("available" | "pending" | "sold")[]
+    },
+  }),
+  (oldValue) => {
+    // ^? TypePet[]
+    return oldValue
+  },
+)
+
+const storeApi = new Store()
+const storeQuery = new StoreQuery(storeApi)
+storeQuery.usePlaceOrderMutation(
+  {
+    body: {},
+    // ^? MaybeRef<TypeOrder>
+  },
+  {
+    onSuccess(_data) {
+      //        ^? TypeOrder
+    },
+  },
+)
+```
+
+### Install
+
+``` sh
+pnpm i swagger-typescript-api -D
+```
+
+### Copy template
+
+Download the [modular template](https://github.com/croatialu/query-templates/tree/main/templates/modular) to your project
+
+### Create script file
+``` js
+// scripts/gen-api/index.js
+
+import { resolve } from 'node:path'
+import process from 'node:process'
+import { generateApi } from 'swagger-typescript-api'
+
+generateApi({
+  input: resolve(process.cwd(), 'swagger.json'),
+  output: resolve(process.cwd(), '__generated__/api'),
+  name: 'api',
+  modular: true,
+  typePrefix: 'Type',
+  templates: resolve(process.cwd(), 'templates/modular'),
+  extraTemplates: [
+    {
+      name: 'Queries',
+      path: resolve(process.cwd(), 'templates/modular/vue-query.ejs'),
+    },
+  ],
+})
+```
+
+###
+
+## Setup
+
+``` sh
+pnpm install
+
+pnpm start
+```
+
+## Thanks
+- [acacode/swagger-typescript-api](https://github.com/acacode/swagger-typescript-api)
+- [@tanstack/query](https://tanstack.com/query/latest)

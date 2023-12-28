@@ -71,6 +71,9 @@
     "*": "eslint --fix"
   },
   "dependencies": {
-    "swagger-typescript-api": "^13.0.3"
+    "@tanstack/vue-query": "^5.15.0",
+    "axios": "^1.6.3",
+    "swagger-typescript-api": "^13.0.3",
+    "vue": "^3.3.13"
   }
 }
