@@ -1,0 +1,28 @@
+<%
+/**
+ * 
+ * This file is modified based on the following project:
+ * Original Author: acacode
+ * Project Name: swagger-typescript-api
+ * Source File Link: https://github.com/acacode/swagger-typescript-api/blob/master/templates/modular/route-types.ejs
+ *
+ * Special thanks to the original author acacode and their contribution to the project swagger-typescript-api.
+ * 
+ */
+const { utils, config, route, modelTypes } = it;
+const { _, pascalCase } = utils;
+const { routes, moduleName } = route;
+const dataContracts = config.modular ? _.map(modelTypes, "name") : [];
+
+%>
+<% if (dataContracts.length) { %>
+import { <%~ dataContracts.join(", ") %> } from "./<%~ config.fileNames.dataContracts %>"
+<% } %>
+
+export namespace <%~ pascalCase(moduleName) %> {
+    <% for (const route of routes) { %>
+
+        <%~ includeFile('@base/route-type.ejs', { ...it, route }) %>
+
+    <% } %>
+}
