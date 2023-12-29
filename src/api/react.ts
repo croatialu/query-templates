@@ -1,6 +1,7 @@
-import { Pet } from '../../__generated__/api/Pet'
-import { createPetQuery, createStoreQuery, usePetQueryUpdate } from '../../__generated__/api/Queries'
-import { Store } from '../../__generated__/api/Store'
+import { createStoreQuery, usePetQueryUpdate } from '../../__generated__/api-react/Queries'
+import { Store } from '../../__generated__/api-react/Store'
+import { createPetQuery } from './../../__generated__/api-react/Queries'
+import { Pet } from './../../__generated__/api-react/Pet'
 
 const petApi = new Pet()
 
