@@ -16,12 +16,12 @@ useQuery code generation template based on swagger-typescript-api and @tanstack/
 
 ``` ts
 import { Pet } from '__generated__/api/Pet'
-import { PetQuery, StoreQuery, usePetQueryUpdate } from '__generated__/api/Queries'
+import { createPetQuery, createStoreQuery, usePetQueryUpdate } from '__generated__/api/Queries'
 import { Store } from '__generated__/api/Store'
 
 const petApi = new Pet()
 
-const petQuery = new PetQuery(petApi)
+const petQuery = createPetQuery(petApi)
 
 const { data: _data } = petQuery.useFindPetsByStatus({
   //            ^? Ref<TypePet[]> | Ref<undefined>
@@ -47,7 +47,7 @@ petQueryUpdate(
 )
 
 const storeApi = new Store()
-const storeQuery = new StoreQuery(storeApi)
+const storeQuery = createStoreQuery(storeApi)
 storeQuery.usePlaceOrderMutation(
   {
     body: {},
