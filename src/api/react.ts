@@ -8,7 +8,7 @@ const petApi = new Pet()
 const petQuery = createPetQuery(petApi)
 
 const { data: _data } = petQuery.useFindPetsByStatus({
-  //            ^? TypePet[] | undefined
+  //            ^? AxiosResponse<TypePet[], void> | undefined
   query: {
     status: ['sold'],
   //  ^? ("available" | "pending" | "sold")[]
@@ -25,7 +25,7 @@ petQueryUpdate(
     },
   }),
   (oldValue) => {
-    // ^? TypePet[]
+    // ^? AxiosResponse<TypePet[], void>
     return oldValue
   },
 )
@@ -36,12 +36,12 @@ const mutation = storeQuery.usePlaceOrderMutation(
   {
     onSuccess(_data, { body: _body }) {
       //                ^? TypeOrder
-      //        ^? TypeOrder
+      //        ^? AxiosResponse<TypeOrder, void>
     },
   },
 )
 
 mutation.mutateAsync({
   body: {},
-  // ^? MaybeRef<TypeOrder>
+  // ^? TypeOrder
 })
