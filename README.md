@@ -10,7 +10,7 @@ useQuery code generation template based on swagger-typescript-api and @tanstack/
 | template | react-query | vue-query |
 |--|--|--|
 | default | WIP... | WIP... |
-| modular | WIP... | ✅ |
+| modular | ✅ | ✅ |
 
 ## Usage
 
