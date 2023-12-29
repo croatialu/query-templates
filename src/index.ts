@@ -16,6 +16,7 @@ function genVueQuery() {
       {
         name: 'Queries',
         path: resolve(process.cwd(), 'templates/modular/react-query.ejs'),
+        // path: resolve(process.cwd(), 'templates/modular/vue-query.ejs'),
       },
     ],
   })

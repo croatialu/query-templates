@@ -9,6 +9,7 @@ const dataContracts = _.map(modelTypes, "name");
 
 const isAxiosHttpClient = config.httpClientType === config.constants.HTTP_CLIENT.AXIOS
 
+const QUERY_TYPE = 'react'
 
 const createResponseType = (route) => {
   return `${isAxiosHttpClient ? 'AxiosResponse' : 'HttpResponse'}<${route.response.type}, ${route.response.errorType}>`
@@ -52,19 +53,32 @@ function parseRouteArgs(route){
 
   const baseArgs = _.sortBy(rawWrapperArgs, [o => o.optional])
 
-  const apiParamsTmplStr = `{ ${baseArgs.map(({ name, optional, type, defaultValue }) => `${name}${!defaultValue && optional ? '?' : ''}: ${type}${defaultValue ? ` = ${defaultValue}` : ''}`).join(', ')} }`
-  const apiParamsTypeTmplStr = `{ ${baseArgs.map(({ name, optional, type }) => `${name}${optional ? '?' : ''}: ${type}`).join(', ')} }`
-  const apiParamsValueTmplStr = `{ ${baseArgs.map(v => v.name).join(', ')} }`
-  const apiParamsDestructuringTmplStr = `{ ${baseArgs.map(({ name, defaultValue,  }) => `${name}${defaultValue ? ` = ${defaultValue}` : ''}`).join(', ')} }`
 
+  const queryParamsValueTmplStr = `{ ${baseArgs.map(v => v.name).join(', ')} }`
+  const queryParamsDestructuringTmplStr = `{ ${baseArgs.map(({ name, defaultValue,  }) => `${name}${defaultValue ? ` = ${defaultValue}` : ''}`).join(', ')} }`
+
+  if(QUERY_TYPE === 'vue') {
+
+
+    return {
+      baseArgs,
+
+      queryParamsTypeTmplStr: `{ ${baseArgs.map(({ name, optional, type }) => `${name}${optional ? '?' : ''}: MaybeRef<${type}>`).join(', ')} }`,
+      queryParamsValueTmplStr,
+      queryParamsDestructuringTmplStr,
+
+      requestParamsValueTmplStr: `${baseArgs.map(v => `toValue(${v.name})`).join(', ')}`,
+
+    }
+  }
 
   return {
     baseArgs,
 
-    apiParamsTmplStr,
-    apiParamsTypeTmplStr,
-    apiParamsValueTmplStr,
-    apiParamsDestructuringTmplStr,
+    queryParamsTypeTmplStr: `{ ${baseArgs.map(({ name, optional, type }) => `${name}${optional ? '?' : ''}: ${type}`).join(', ')} }`,
+    queryParamsValueTmplStr,
+    queryParamsDestructuringTmplStr,
+    requestParamsValueTmplStr: `${baseArgs.map(v => `${v.name}`).join(', ')}`,
   }
 }
 
@@ -120,10 +134,11 @@ type CustomMutationOptions<T, E> = Omit<MutationOptions< <%~ isAxiosHttpClient ?
         const { routeName, request, response  } = route
         const { 
           baseArgs,
-          apiParamsTmplStr,
-          apiParamsTypeTmplStr,
-          apiParamsValueTmplStr,
-          apiParamsDestructuringTmplStr,
+        
+          queryParamsTypeTmplStr,
+          queryParamsValueTmplStr,
+          queryParamsDestructuringTmplStr,
+          requestParamsValueTmplStr,
         } = parseRouteArgs(route)
         const routeDocs = includeFile("@base/route-docs", { config, route, utils });  
         
@@ -147,32 +162,32 @@ type CustomMutationOptions<T, E> = Omit<MutationOptions< <%~ isAxiosHttpClient ?
           */
         <% if(request.method === 'get') { %>
             <%= queryFnName %>(
-                  apiParams: <%~ apiParamsTypeTmplStr %>,
+                  apiParams: <%~ queryParamsTypeTmplStr %>,
                   queryOptions: <%~ queryOptionTypeName %> = {}     
                   ) {
-                  const <%~ apiParamsDestructuringTmplStr %> = apiParams
+                  const <%~ queryParamsDestructuringTmplStr %> = apiParams
                   return useQuery({
                       ...queryOptions,
-                      queryKey: this.<%= createQueryKeyFnName %>(<%~ apiParamsValueTmplStr %>),
+                      queryKey: this.<%= createQueryKeyFnName %>(<%~ queryParamsValueTmplStr %>),
                       queryFn: (() => {
-                          return api.<%= routeName.usage %>(<%~ baseArgs.map(v => v.name).join(', ') %>)
+                          return api.<%= routeName.usage %>(<%~ requestParamsValueTmplStr %>)
                       }) as any
                   })
               },
-              <%= createQueryKeyFnName %>(apiParams: <%~ apiParamsTypeTmplStr %> ) {
-                  const <%~ apiParamsDestructuringTmplStr %> = apiParams
+              <%= createQueryKeyFnName %>(apiParams: <%~ queryParamsTypeTmplStr %> ) {
+                  const <%~ queryParamsDestructuringTmplStr %> = apiParams
                   return <%~ queryKeyValueTmplStr %> as const
               },
             <% } else { %>
               <%= mutationFnName %>(
-                apiParams: <%~ apiParamsTypeTmplStr %>,
+                apiParams: <%~ queryParamsTypeTmplStr %>,
                 mutationOptions: <%~ mutationOptionTypeName %> = {}     
                 ) {
-                const <%~ apiParamsDestructuringTmplStr %> = apiParams
+                const <%~ queryParamsDestructuringTmplStr %> = apiParams
                 return useMutation({
                     ...mutationOptions,
                     mutationFn: (() => {
-                        return api.<%= routeName.usage %>(<%~ baseArgs.map(v => v.name).join(', ') %>)
+                        return api.<%= routeName.usage %>(<%~ requestParamsValueTmplStr %>)
                     }) as any
                 })
               },

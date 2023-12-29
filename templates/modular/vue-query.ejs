@@ -7,6 +7,8 @@ const { _, pascalCase } = utils
 const combinedArr = it.routes.combined
 const dataContracts = _.map(modelTypes, "name");
 
+const QUERY_TYPE = 'vue'
+
 const isAxiosHttpClient = config.httpClientType === config.constants.HTTP_CLIENT.AXIOS
 
 
@@ -52,27 +54,32 @@ function parseRouteArgs(route){
 
   const baseArgs = _.sortBy(rawWrapperArgs, [o => o.optional])
 
-  const argTmplStr = `${baseArgs.map(({ name, optional, type, defaultValue }) => `${name}${!defaultValue && optional ? '?' : ''}: ${type}${defaultValue ? ` = ${defaultValue}` : ''}`).join(', ')}`
-  const typeTmplStr = `${baseArgs.map(({ name, optional, type }) => `${name}${optional ? '?' : ''}: ${type}`).join(', ')}`
-  const valueTmplStr = `${baseArgs.map(v => v.name).join(', ')}`
-  const destructuringTmplStr = `{ ${baseArgs.map(({ name, defaultValue,  }) => `${name}${defaultValue ? ` = ${defaultValue}` : ''}`).join(', ')} }`
 
-  const maybeRefArgTmplStr = `${baseArgs.map(({ name, optional, type, defaultValue }) => `${name}${!defaultValue && optional ? '?' : ''}: MaybeRef<${type}>${defaultValue ? ` = ${defaultValue}` : ''}`).join(', ')}`
-  const maybeRefTypeTmplStr = `${baseArgs.map(({ name, optional, type, defaultValue }) => `${name}${optional ? '?' : ''}: MaybeRef<${type}>`).join(', ')}`
-  const maybeRefValueTmplStr = `${baseArgs.map(v => `toValue(${v.name})`).join(', ')}`
+  const queryParamsValueTmplStr = `{ ${baseArgs.map(v => v.name).join(', ')} }`
+  const queryParamsDestructuringTmplStr = `{ ${baseArgs.map(({ name, defaultValue,  }) => `${name}${defaultValue ? ` = ${defaultValue}` : ''}`).join(', ')} }`
+
+  if(QUERY_TYPE === 'vue') {
 
 
+    return {
+      baseArgs,
+
+      queryParamsTypeTmplStr: `{ ${baseArgs.map(({ name, optional, type }) => `${name}${optional ? '?' : ''}: MaybeRef<${type}>`).join(', ')} }`,
+      queryParamsValueTmplStr,
+      queryParamsDestructuringTmplStr,
+
+      requestParamsValueTmplStr: `${baseArgs.map(v => `toValue(${v.name})`).join(', ')}`,
+
+    }
+  }
 
   return {
     baseArgs,
-    argTmplStr,
-    typeTmplStr,
-    valueTmplStr,
-    destructuringTmplStr,
 
-    maybeRefArgTmplStr,
-    maybeRefTypeTmplStr,
-    maybeRefValueTmplStr,
+    queryParamsTypeTmplStr: `{ ${baseArgs.map(({ name, optional, type }) => `${name}${optional ? '?' : ''}: ${type}`).join(', ')} }`,
+    queryParamsValueTmplStr,
+    queryParamsDestructuringTmplStr,
+    requestParamsValueTmplStr: `${baseArgs.map(v => `${v.name}`).join(', ')}`,
   }
 }
 
@@ -118,18 +125,22 @@ type CustomMutationOptions<T, E> = MaybeRef<Omit<UnwrapRef<MutationOptions< <%~ 
   <% 
     const moduleName = combined.moduleName
     const moduleClassName = utils.pascalCase(moduleName)
+    const moduleCreatorName = `create${moduleClassName}Query`
     const queryUpdateName = `use${moduleClassName}QueryUpdate`
-
+    
   %>
-  export class <%= moduleClassName %>Query {
-    constructor( private api: <%= moduleClassName %> ){}
-  
+  export const <%= moduleCreatorName %> = (api: <%= moduleClassName %>) => {
+    return {
       <% for (const route of combined.routes) { %>
         <% 
         const { routeName, request, response  } = route
-        const { baseArgs, 
-          argTmplStr, typeTmplStr, valueTmplStr, destructuringTmplStr,
-          maybeRefArgTmplStr, maybeRefTypeTmplStr, maybeRefValueTmplStr
+        const { 
+          baseArgs,
+
+          queryParamsTypeTmplStr,
+          queryParamsValueTmplStr,
+          queryParamsDestructuringTmplStr,
+          requestParamsValueTmplStr,
         } = parseRouteArgs(route)
         const routeDocs = includeFile("@base/route-docs", { config, route, utils });  
         
@@ -140,14 +151,6 @@ type CustomMutationOptions<T, E> = MaybeRef<Omit<UnwrapRef<MutationOptions< <%~ 
         const mutationFnName = `use${utils.pascalCase(routeName.usage)}Mutation`
         const mutationOptionTypeName = `CustomMutationOptions<${response.type}, ${response.errorType}>`
         
-
-
-
-
-        const apiParamsTypeTmplStr = `{ ${typeTmplStr} }`
-        const apiParamsValueTmplStr = `{ ${valueTmplStr} }`
-        const apiParamsMaybeRefTypeTmplStr = `{ ${maybeRefTypeTmplStr} }`
-
 
         const queryKeyValueTmplStr = createQueryKeyTmplStr(moduleName, request, baseArgs.map(v => v.name))
         %>
@@ -161,43 +164,39 @@ type CustomMutationOptions<T, E> = MaybeRef<Omit<UnwrapRef<MutationOptions< <%~ 
         
           */
         <% if(request.method === 'get') { %>
-               public <%= queryFnName %>(
-                  apiParams: <%~ apiParamsMaybeRefTypeTmplStr %>,
+              <%= queryFnName %>(
+                  apiParams: <%~ queryParamsTypeTmplStr %>,
                   queryOptions: <%~ queryOptionTypeName %> = {}     
                   ) {
-                  const <%~ destructuringTmplStr %> = apiParams
+                  const <%~ queryParamsDestructuringTmplStr %> = apiParams
                   return useQuery({
                       ...queryOptions,
-                      queryKey: this.<%= createQueryKeyFnName %>(<%~ apiParamsValueTmplStr %>),
+                      queryKey: this.<%= createQueryKeyFnName %>(<%~ queryParamsValueTmplStr %>),
                       queryFn: (() => {
-                          return this.api.<%= routeName.usage %>(<%~ maybeRefValueTmplStr %>)
+                          return api.<%= routeName.usage %>(<%~ requestParamsValueTmplStr %>)
                       }) as any
                   })
-              }
-              public <%= createQueryKeyFnName %>(apiParams: <%~ apiParamsMaybeRefTypeTmplStr %> ) {
-                  const <%~ destructuringTmplStr %> = apiParams
+              },
+              <%= createQueryKeyFnName %>(apiParams: <%~ queryParamsTypeTmplStr %> ) {
+                  const <%~ queryParamsDestructuringTmplStr %> = apiParams
                   return <%~ queryKeyValueTmplStr %> as const
-              }
+              },
             <% } else { %>
-              public <%= mutationFnName %>(
-                apiParams: <%~ apiParamsMaybeRefTypeTmplStr %>,
+              <%= mutationFnName %>(
+                apiParams: <%~ queryParamsTypeTmplStr %>,
                 mutationOptions: <%~ mutationOptionTypeName %> = {}     
                 ) {
-                const <%~ destructuringTmplStr %> = apiParams
+                const <%~ queryParamsDestructuringTmplStr %> = apiParams
                 return useMutation({
                     ...mutationOptions,
                     mutationFn: (() => {
-                        return this.api.<%= routeName.usage %>(<%~ maybeRefValueTmplStr %>)
+                        return api.<%= routeName.usage %>(<%~ requestParamsValueTmplStr %>)
                     }) as any
                 })
-              }
+              },
             <% } %>
-
-
-
-
-          
     <% } %>
+    }
   }
   
   export const <%= queryUpdateName %> = () => {
