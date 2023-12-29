@@ -15,7 +15,7 @@ function genVueQuery() {
     extraTemplates: [
       {
         name: 'Queries',
-        path: resolve(process.cwd(), 'templates/modular/vue-query.ejs'),
+        path: resolve(process.cwd(), 'templates/modular/react-query.ejs'),
       },
     ],
   })
