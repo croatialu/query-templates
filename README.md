@@ -24,7 +24,7 @@ const petApi = new Pet()
 const petQuery = createPetQuery(petApi)
 
 const { data: _data } = petQuery.useFindPetsByStatus({
-  //            ^? Ref<TypePet[]> | Ref<undefined>
+  //            ^? TypePet[] | undefined
   query: {
     status: ['sold'],
   //  ^? ("available" | "pending" | "sold")[]
@@ -48,17 +48,19 @@ petQueryUpdate(
 
 const storeApi = new Store()
 const storeQuery = createStoreQuery(storeApi)
-storeQuery.usePlaceOrderMutation(
+const mutation = storeQuery.usePlaceOrderMutation(
   {
-    body: {},
-    // ^? MaybeRef<TypeOrder>
-  },
-  {
-    onSuccess(_data) {
+    onSuccess(_data, { body: _body }) {
+      //                ^? TypeOrder
       //        ^? TypeOrder
     },
   },
 )
+
+mutation.mutateAsync({
+  body: {},
+  // ^? MaybeRef<TypeOrder>
+})
 ```
 
 ### Install
