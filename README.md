@@ -73,6 +73,10 @@ pnpm i swagger-typescript-api -D
 
 Download the [modular template](https://github.com/croatialu/query-templates/tree/main/templates/modular) to your project
 
+``` sh
+npx dgit --ref main croatialu/query-templates/templates/modular ./templates
+```
+
 ### Create script file
 ``` js
 // scripts/gen-api/index.js
