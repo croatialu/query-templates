@@ -1,0 +1,223 @@
+<%
+/**
+ * based @tanstack/vue-query
+ * */
+const { modelTypes, utils, config } = it
+const { _, pascalCase } = utils
+const combinedArr = it.routes.combined
+const dataContracts = _.map(modelTypes, "name");
+
+const isAxiosHttpClient = config.httpClientType === config.constants.HTTP_CLIENT.AXIOS
+
+const QUERY_TYPE = 'react'
+
+const createResponseType = (route) => {
+  return `${isAxiosHttpClient ? 'AxiosResponse' : 'HttpResponse'}<${route.response.type}, ${route.response.errorType}>`
+}
+
+function parseRouteArgs(route){
+  const { id, namespace: routeNamespace, routeName, request, response, specificArgNameResolver  } = route
+
+  const { parameters, path, method, payload, query, formData, security, requestParams } = request;
+  const { type, errorType, contentTypes } = response;
+  const { HTTP_CLIENT, RESERVED_REQ_PARAMS_ARG_NAMES } = config.constants;
+
+  const queryName = (query && query.name) || "query";
+  const pathParams = _.values(parameters);
+  const pathParamsNames = _.map(pathParams, "name");
+
+  const requestConfigParam = {
+      name: specificArgNameResolver.resolve(RESERVED_REQ_PARAMS_ARG_NAMES),
+      optional: true,
+      type: "RequestParams",
+      defaultValue: "{}",
+  }
+
+  const rawWrapperArgs = config.extractRequestParams ?
+    _.compact([
+        requestParams && {
+          name: pathParams.length ? `{ ${_.join(pathParamsNames, ", ")}, ...${queryName} }` : queryName,
+          optional: false,
+          type: utils.getInlineParseContent(requestParams),
+        },
+        ...(!requestParams ? pathParams : []),
+        payload,
+        requestConfigParam,
+    ]) :
+    _.compact([
+        ...pathParams,
+        query,
+        payload,
+        requestConfigParam,
+    ])
+
+  const baseArgs = _.sortBy(rawWrapperArgs, [o => o.optional])
+
+
+  const queryParamsValueTmplStr = `{ ${baseArgs.map(v => v.name).join(', ')} }`
+  const queryParamsDestructuringTmplStr = `{ ${baseArgs.map(({ name, defaultValue,  }) => `${name}${defaultValue ? ` = ${defaultValue}` : ''}`).join(', ')} }`
+
+  if(QUERY_TYPE === 'vue') {
+
+
+    return {
+      baseArgs,
+
+      queryParamsTypeTmplStr: `{ ${baseArgs.map(({ name, optional, type }) => `${name}${optional ? '?' : ''}: MaybeRef<${type}>`).join(', ')} }`,
+      queryParamsValueTmplStr,
+      queryParamsDestructuringTmplStr,
+
+      requestParamsValueTmplStr: `${baseArgs.map(v => `toValue(${v.name})`).join(', ')}`,
+
+    }
+  }
+
+  return {
+    baseArgs,
+
+    queryParamsTypeTmplStr: `{ ${baseArgs.map(({ name, optional, type }) => `${name}${optional ? '?' : ''}: ${type}`).join(', ')} }`,
+    queryParamsValueTmplStr,
+    queryParamsDestructuringTmplStr,
+    requestParamsValueTmplStr: `${baseArgs.map(v => `${v.name}`).join(', ')}`,
+  }
+}
+
+const createQueryKeyTmplStr = (namespace, request, requestArgNames) => {
+  return `[${[
+      '"swagger-typescript-api"', 
+      `"${namespace}"`,
+      `"${request.method}"`, 
+      `"${request.path}"`, 
+      ...requestArgNames
+    ].join(', ')}]`
+}
+
+%>
+import { useQuery, useQueryClient, UseQueryOptions, MutationOptions, useMutation } from '@tanstack/react-query'
+<% if (isAxiosHttpClient) { %> import type { AxiosRequestConfig, AxiosResponse } from "axios"; <% } %>
+
+import { HttpClient, RequestParams, ContentType, HttpResponse } from "./<%~ config.fileNames.httpClient %>";
+
+<% for( const combined of combinedArr) {%>
+  import { <%= utils.pascalCase(combined.moduleName) %> } from './<%= utils.pascalCase(combined.moduleName) %>'
+
+  <% } %>
+
+<% if (dataContracts.length) { %>
+  import { <%~ dataContracts.join(", ") %> } from "./<%~ config.fileNames.dataContracts %>"
+  <% } %>
+
+/**
+  <%= it.apiConfig.info.title %>
+
+  <%= it.apiConfig.info.version %>
+
+  <%= it.apiConfig.info.description %>
+
+*/
+
+type QueryOptions<T, E> = Omit<UseQueryOptions< <%~ isAxiosHttpClient ? 'AxiosResponse' : 'HttpResponse'%><T, E> >, 'queryKey' | 'queryFn'>
+type CustomMutationOptions<T, E> = Omit<MutationOptions< <%~ isAxiosHttpClient ? 'AxiosResponse' : 'HttpResponse'%><T, E> >, 'mutationFn'>
+
+<% for (const combined of combinedArr) { %>
+  <% 
+    const moduleName = combined.moduleName
+    const moduleClassName = utils.pascalCase(moduleName)
+    const moduleCreatorName = `create${moduleClassName}Query`
+    const queryUpdateName = `use${moduleClassName}QueryUpdate`
+
+  %>
+  export const <%= moduleCreatorName %> = (api: <%= moduleClassName %>) => {
+    return {
+      <% for (const route of combined.routes) { %>
+        <% 
+        const { routeName, request, response  } = route
+        const { 
+          baseArgs,
+        
+          queryParamsTypeTmplStr,
+          queryParamsValueTmplStr,
+          queryParamsDestructuringTmplStr,
+          requestParamsValueTmplStr,
+        } = parseRouteArgs(route)
+        const routeDocs = includeFile("@base/route-docs", { config, route, utils });  
+        
+        const queryFnName = `use${utils.pascalCase(routeName.usage)}`
+        const createQueryKeyFnName = `create${utils.pascalCase(routeName.usage)}QueryKey`
+        const queryOptionTypeName = `QueryOptions<${response.type}, ${response.errorType}>`
+
+        const mutationFnName = `use${utils.pascalCase(routeName.usage)}Mutation`
+        const mutationOptionTypeName = `CustomMutationOptions<${response.type}, ${response.errorType}>`
+        
+        const queryKeyValueTmplStr = createQueryKeyTmplStr(moduleName, request, baseArgs.map(v => v.name))
+        %>
+
+        /**
+        <%~ routeDocs.description %>
+        
+          *<% /* Here you can add some other JSDoc tags */ %>
+        
+        <%~ routeDocs.lines %>
+        
+          */
+        <% if(request.method === 'get') { %>
+            <%= queryFnName %>(
+                  apiParams: <%~ queryParamsTypeTmplStr %>,
+                  queryOptions: <%~ queryOptionTypeName %> = {}     
+                  ) {
+                  const <%~ queryParamsDestructuringTmplStr %> = apiParams
+                  return useQuery({
+                      ...queryOptions,
+                      queryKey: this.<%= createQueryKeyFnName %>(<%~ queryParamsValueTmplStr %>),
+                      queryFn: (() => {
+                          return api.<%= routeName.usage %>(<%~ requestParamsValueTmplStr %>)
+                      }) as any
+                  })
+              },
+              <%= createQueryKeyFnName %>(apiParams: <%~ queryParamsTypeTmplStr %> ) {
+                  const <%~ queryParamsDestructuringTmplStr %> = apiParams
+                  return <%~ queryKeyValueTmplStr %> as const
+              },
+            <% } else { %>
+              <%= mutationFnName %>(
+                apiParams: <%~ queryParamsTypeTmplStr %>,
+                mutationOptions: <%~ mutationOptionTypeName %> = {}     
+                ) {
+                const <%~ queryParamsDestructuringTmplStr %> = apiParams
+                return useMutation({
+                    ...mutationOptions,
+                    mutationFn: (() => {
+                        return api.<%= routeName.usage %>(<%~ requestParamsValueTmplStr %>)
+                    }) as any
+                })
+              },
+            <% } %>
+          
+    <% } %>
+    }
+  }
+  
+  export const <%= queryUpdateName %> = () => {
+    const queryClient = useQueryClient()
+  
+    <% for (const route of combined.routes) { %>
+      <% 
+      const { request } = route
+      const { baseArgs } = parseRouteArgs(route)
+      const responseType = createResponseType(route)
+      const queryKeyTypeTmplStr = createQueryKeyTmplStr(moduleName, request, baseArgs.map(v => v.type))
+
+      %>
+      function setQueryData(
+        queryKey: readonly <%~ queryKeyTypeTmplStr %>,
+        updater: (data: <%~ responseType %>) => <%~ responseType %>,
+        ): Promise<<%~ responseType %>>
+    <% } %>
+    function setQueryData(queryKey: any, updater: any)  {
+      return queryClient.setQueryData(queryKey, updater)
+    }
+    
+    return setQueryData
+  }
+  
+  <% } %>

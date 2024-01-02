@@ -1,0 +1,38 @@
+<%
+/**
+ * 
+ * This file is modified based on the following project:
+ * Original Author: acacode
+ * Project Name: swagger-typescript-api
+ * Source File Link: https://github.com/acacode/swagger-typescript-api/blob/master/templates/modular/api.ejs
+ *
+ * Special thanks to the original author acacode and their contribution to the project swagger-typescript-api.
+ * 
+ */
+const { utils, route, config, modelTypes } = it;
+const { _, pascalCase, require } = utils;
+const apiClassName = pascalCase(route.moduleName);
+const routes = route.routes;
+const dataContracts = _.map(modelTypes, "name");
+%>
+
+<% if (config.httpClientType === config.constants.HTTP_CLIENT.AXIOS) { %> import type { AxiosRequestConfig, AxiosResponse } from "axios"; <% } %>
+
+import { HttpClient, RequestParams, ContentType, HttpResponse } from "./<%~ config.fileNames.httpClient %>";
+<% if (dataContracts.length) { %>
+import { <%~ dataContracts.join(", ") %> } from "./<%~ config.fileNames.dataContracts %>"
+<% } %>
+
+export class <%= apiClassName %><SecurityDataType = unknown><% if (!config.singleHttpClient) { %> extends HttpClient<SecurityDataType> <% } %> {
+<% if(config.singleHttpClient) { %>
+  http: HttpClient<SecurityDataType>;
+
+  constructor (http: HttpClient<SecurityDataType>) {
+    this.http = http;
+  }
+<% } %>
+
+    <% for (const route of routes) { %>
+        <%~ includeFile('./procedure-call.ejs', { ...it, route }) %>
+    <% } %>
+}
