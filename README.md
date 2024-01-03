@@ -9,11 +9,60 @@ useQuery code generation template based on swagger-typescript-api and @tanstack/
 
 | template | react-query | vue-query |
 |--|--|--|
-| default | WIP... | WIP... |
+| default | ✅ | ✅ |
 | modular | ✅ | ✅ |
 
 ## Usage
 
+`default` template
+
+``` ts
+import { createApiQuery } from '../../__generated__/api-react-default/Queries'
+import { Api } from '../../__generated__/api-react-default/api'
+
+const api = new Api()
+
+const apiQuery = createApiQuery(api)
+
+const { data: _data } = apiQuery.pet.useFindPetsByStatus({
+  //            ^?  Ref<AxiosResponse<TypePet[], void>> | Ref<undefined>
+  query: {
+    status: ['sold'],
+  //  ^? ("available" | "pending" | "sold")[]
+  },
+})
+
+const petQueryUpdate = apiQuery.usePetQueryUpdate()
+
+petQueryUpdate(
+  apiQuery.pet.createFindPetsByStatusQueryKey({
+    query: {
+      status: ['sold'],
+    //  ^? ("available" | "pending" | "sold")[]
+    },
+  }),
+  (oldValue) => {
+    // ^? AxiosResponse<TypePet[], void>
+    return oldValue
+  },
+)
+
+const mutation = apiQuery.store.usePlaceOrderMutation(
+  {
+    onSuccess(_data, { body: _body }) {
+      //                ^? MaybeRef<TypeOrder>
+      //        ^? AxiosResponse<TypeOrder>
+    },
+  },
+)
+
+mutation.mutateAsync({
+  body: {},
+  // ^? MaybeRef<TypeOrder>
+})
+```
+
+`modular` template
 ``` ts
 import { Pet } from '__generated__/api/Pet'
 import { createPetQuery, createStoreQuery, usePetQueryUpdate } from '__generated__/api/Queries'
@@ -71,13 +120,17 @@ pnpm i swagger-typescript-api -D
 
 ### Copy template
 
-Download the [modular template](https://github.com/croatialu/query-templates/tree/main/templates/modular) to your project
+Download the template to your project
 
 ``` sh
+# default template
+npx dgit --ref main croatialu/query-templates/templates/default ./templates
+
+# or modular template
 npx dgit --ref main croatialu/query-templates/templates/modular ./templates
 ```
 
-### Create script file
+### Create script file (modular)
 ``` js
 // scripts/gen-api/index.js
 
@@ -114,3 +167,4 @@ pnpm start
 ## Thanks
 - [acacode/swagger-typescript-api](https://github.com/acacode/swagger-typescript-api)
 - [@tanstack/query](https://tanstack.com/query/latest)
+- [antfu/starter-ts](https://github.com/antfu/starter-ts)
