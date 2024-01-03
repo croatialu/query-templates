@@ -41,7 +41,7 @@ type CustomMutationOptions<T, E, V> = MaybeRef<
   Omit<UnwrapRef<MutationOptions<AxiosResponse<T, E>, E, V>>, "mutationFn">
 >;
 
-export const createPetQuery = (api: Pet) => {
+export const createPetApiQuery = (api: Pet) => {
   /**
    * No description
    *
@@ -380,7 +380,7 @@ export const createPetQuery = (api: Pet) => {
   };
 };
 
-export const usePetQueryUpdate = () => {
+export const usePetApiQueryUpdate = () => {
   const queryClient = useQueryClient();
 
   function setQueryData(
@@ -482,7 +482,7 @@ export const usePetQueryUpdate = () => {
   return setQueryData;
 };
 
-export const createStoreQuery = (api: Store) => {
+export const createStoreApiQuery = (api: Store) => {
   /**
    * No description
    *
@@ -613,7 +613,7 @@ export const createStoreQuery = (api: Store) => {
   };
 };
 
-export const useStoreQueryUpdate = () => {
+export const useStoreApiQueryUpdate = () => {
   const queryClient = useQueryClient();
 
   function setQueryData(
@@ -660,7 +660,7 @@ export const useStoreQueryUpdate = () => {
   return setQueryData;
 };
 
-export const createUserQuery = (api: User) => {
+export const createUserApiQuery = (api: User) => {
   /**
    * No description
    *
@@ -935,7 +935,7 @@ export const createUserQuery = (api: User) => {
   };
 };
 
-export const useUserQueryUpdate = () => {
+export const useUserApiQueryUpdate = () => {
   const queryClient = useQueryClient();
 
   function setQueryData(

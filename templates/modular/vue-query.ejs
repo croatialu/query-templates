@@ -16,6 +16,14 @@ const createResponseType = (route) => {
   return `${isAxiosHttpClient ? 'AxiosResponse' : 'HttpResponse'}<${route.response.type}, ${route.response.errorType}>`
 }
 
+const createModuleCreatorName = (moduleClassName) => {
+  return `create${moduleClassName}${config.apiClassName}Query`
+}
+
+const createQueryUpdateName = (moduleClassName) => {
+  return `use${moduleClassName}${config.apiClassName}QueryUpdate`
+}
+
 function parseRouteArgs(route){
   const { id, namespace: routeNamespace, routeName, request, response, specificArgNameResolver  } = route
 
@@ -125,8 +133,8 @@ type CustomMutationOptions<T, E, V> = MaybeRef<Omit<UnwrapRef<MutationOptions< <
   <% 
     const moduleName = combined.moduleName
     const moduleClassName = utils.pascalCase(moduleName)
-    const moduleCreatorName = `create${moduleClassName}Query`
-    const queryUpdateName = `use${moduleClassName}QueryUpdate`
+    const moduleCreatorName = createModuleCreatorName(moduleClassName)
+    const queryUpdateName = createQueryUpdateName(moduleClassName)
     
   %>
   export const <%= moduleCreatorName %> = (api: <%= moduleClassName %>) => {

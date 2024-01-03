@@ -1,10 +1,10 @@
-import { createPetQuery, createStoreQuery, usePetQueryUpdate } from '../../__generated__/api-vue-modular/Queries'
+import { createPetApiQuery, createStoreApiQuery, usePetApiQueryUpdate } from '../../__generated__/api-vue-modular/Queries'
 import { Store } from '../../__generated__/api-vue-modular/Store'
 import { Pet } from '../../__generated__/api-vue-modular/Pet'
 
 const petApi = new Pet()
 
-const petQuery = createPetQuery(petApi)
+const petQuery = createPetApiQuery(petApi)
 
 const { data: _data } = petQuery.useFindPetsByStatus({
   //            ^?  Ref<AxiosResponse<TypePet[], void>> | Ref<undefined>
@@ -14,7 +14,7 @@ const { data: _data } = petQuery.useFindPetsByStatus({
   },
 })
 
-const petQueryUpdate = usePetQueryUpdate()
+const petQueryUpdate = usePetApiQueryUpdate()
 
 petQueryUpdate(
   petQuery.createFindPetsByStatusQueryKey({
@@ -30,7 +30,7 @@ petQueryUpdate(
 )
 
 const storeApi = new Store()
-const storeQuery = createStoreQuery(storeApi)
+const storeQuery = createStoreApiQuery(storeApi)
 const mutation = storeQuery.usePlaceOrderMutation(
   {
     onSuccess(_data, { body: _body }) {
