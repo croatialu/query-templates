@@ -63,11 +63,11 @@ function parseRouteArgs(route){
     return {
       baseArgs,
 
-      queryParamsTypeTmplStr: `{ ${baseArgs.map(({ name, optional, type }) => `${name}${optional ? '?' : ''}: MaybeRef<${type}>`).join(', ')} }`,
+      queryParamsTypeTmplStr: `{ ${baseArgs.map(({ name, optional, type }) => `${name}${optional ? '?' : ''}: ${type}`).join(', ')} }`,
       queryParamsValueTmplStr,
       queryParamsDestructuringTmplStr,
 
-      requestParamsValueTmplStr: `${baseArgs.map(v => `toValue(${v.name})`).join(', ')}`,
+      requestParamsValueTmplStr: `${baseArgs.map(v => v.name).join(', ')}`,
 
     }
   }
@@ -93,7 +93,7 @@ const createQueryKeyTmplStr = (namespace, request, requestArgNames) => {
 }
 
 %>
-import { useQuery, useQueryClient, UseQueryOptions, MutationOptions, useMutation } from '@tanstack/react-query'
+import { useQuery, UseQueryResult, useQueryClient, UseQueryOptions, MutationOptions, useMutation, UseMutationResult } from '@tanstack/react-query'
 <% if (isAxiosHttpClient) { %> import type { AxiosRequestConfig, AxiosResponse } from "axios"; <% } %>
 
 import { HttpClient, RequestParams, ContentType, HttpResponse } from "./<%~ config.fileNames.httpClient %>";
@@ -116,8 +116,8 @@ import { HttpClient, RequestParams, ContentType, HttpResponse } from "./<%~ conf
 
 */
 
-type QueryOptions<T, E> = Omit<UseQueryOptions< <%~ isAxiosHttpClient ? 'AxiosResponse' : 'HttpResponse'%><T, E> >, 'queryKey' | 'queryFn'>
-type CustomMutationOptions<T, E> = Omit<MutationOptions< <%~ isAxiosHttpClient ? 'AxiosResponse' : 'HttpResponse'%><T, E> >, 'mutationFn'>
+type CustomQueryOptions<T, E> = Omit<UseQueryOptions< <%~ isAxiosHttpClient ? 'AxiosResponse' : 'HttpResponse'%><T, E> >, 'queryKey' | 'queryFn'>
+type CustomMutationOptions<T, E, V> = Omit<MutationOptions< <%~ isAxiosHttpClient ? 'AxiosResponse' : 'HttpResponse'%><T, E>, E, V>, 'mutationFn'>
 
 <% for (const combined of combinedArr) { %>
   <% 
@@ -125,16 +125,41 @@ type CustomMutationOptions<T, E> = Omit<MutationOptions< <%~ isAxiosHttpClient ?
     const moduleClassName = utils.pascalCase(moduleName)
     const moduleCreatorName = `create${moduleClassName}Query`
     const queryUpdateName = `use${moduleClassName}QueryUpdate`
-
+    
   %>
   export const <%= moduleCreatorName %> = (api: <%= moduleClassName %>) => {
-    return {
-      <% for (const route of combined.routes) { %>
+
+    <% 
+      const routes = combined.routes.map(item =>  {
+        const { routeName, request } = item
+
+        const isQuery = request.method === 'get'
+
+        const queryFnName = `use${utils.pascalCase(routeName.usage)}`
+        const mutationFnName = `use${utils.pascalCase(routeName.usage)}Mutation`
+        const createQueryKeyFnName = `create${utils.pascalCase(routeName.usage)}QueryKey`
+
+
+
+
+        return {
+          route: item,
+          queryFnName,
+          mutationFnName,
+          createQueryKeyFnName,
+          isQuery
+        }
+      })
+
+    
+    %>
+
+      <% for (const { route, queryFnName, mutationFnName, createQueryKeyFnName  } of routes) { %>
         <% 
         const { routeName, request, response  } = route
         const { 
           baseArgs,
-        
+
           queryParamsTypeTmplStr,
           queryParamsValueTmplStr,
           queryParamsDestructuringTmplStr,
@@ -142,14 +167,12 @@ type CustomMutationOptions<T, E> = Omit<MutationOptions< <%~ isAxiosHttpClient ?
         } = parseRouteArgs(route)
         const routeDocs = includeFile("@base/route-docs", { config, route, utils });  
         
-        const queryFnName = `use${utils.pascalCase(routeName.usage)}`
-        const createQueryKeyFnName = `create${utils.pascalCase(routeName.usage)}QueryKey`
-        const queryOptionTypeName = `QueryOptions<${response.type}, ${response.errorType}>`
+        const queryOptionTypeName = `CustomQueryOptions<${response.type}, ${response.errorType}>`
 
-        const mutationFnName = `use${utils.pascalCase(routeName.usage)}Mutation`
-        const mutationOptionTypeName = `CustomMutationOptions<${response.type}, ${response.errorType}>`
-        
+        const mutationOptionTypeName = `CustomMutationOptions<${response.type}, ${response.errorType}, ${queryParamsTypeTmplStr}>`
+
         const queryKeyValueTmplStr = createQueryKeyTmplStr(moduleName, request, baseArgs.map(v => v.name))
+        const responseType = createResponseType(route)
         %>
 
         /**
@@ -161,39 +184,45 @@ type CustomMutationOptions<T, E> = Omit<MutationOptions< <%~ isAxiosHttpClient ?
         
           */
         <% if(request.method === 'get') { %>
-            <%= queryFnName %>(
+              function <%= queryFnName %>(
                   apiParams: <%~ queryParamsTypeTmplStr %>,
                   queryOptions: <%~ queryOptionTypeName %> = {}     
-                  ) {
+              ) {
                   const <%~ queryParamsDestructuringTmplStr %> = apiParams
                   return useQuery({
                       ...queryOptions,
-                      queryKey: this.<%= createQueryKeyFnName %>(<%~ queryParamsValueTmplStr %>),
+                      queryKey: <%= createQueryKeyFnName %>(<%~ queryParamsValueTmplStr %>),
                       queryFn: (() => {
+                          // @ts-ignore
                           return api.<%= routeName.usage %>(<%~ requestParamsValueTmplStr %>)
                       }) as any
-                  })
-              },
-              <%= createQueryKeyFnName %>(apiParams: <%~ queryParamsTypeTmplStr %> ) {
+                  }) as unknown as UseQueryResult<<%~ responseType %>, <%~ response.errorType %>>
+              }
+              function <%= createQueryKeyFnName %>(apiParams: <%~ queryParamsTypeTmplStr %> ) {
                   const <%~ queryParamsDestructuringTmplStr %> = apiParams
                   return <%~ queryKeyValueTmplStr %> as const
-              },
+              }
             <% } else { %>
-              <%= mutationFnName %>(
-                apiParams: <%~ queryParamsTypeTmplStr %>,
+              function <%= mutationFnName %>(
                 mutationOptions: <%~ mutationOptionTypeName %> = {}     
-                ) {
-                const <%~ queryParamsDestructuringTmplStr %> = apiParams
+              ) {
                 return useMutation({
                     ...mutationOptions,
-                    mutationFn: (() => {
+                    mutationFn: ((apiParams: <%~ queryParamsTypeTmplStr %>) => {
+                        const <%~ queryParamsDestructuringTmplStr %> = apiParams
+
+                        // @ts-ignore
                         return api.<%= routeName.usage %>(<%~ requestParamsValueTmplStr %>)
                     }) as any
-                })
-              },
+                }) as unknown as UseMutationResult<<%~ responseType %>, <%~ response.errorType %>, <%~ queryParamsTypeTmplStr %>, any>
+              }
             <% } %>
-          
     <% } %>
+
+    return {
+      <% for (const { route, queryFnName, mutationFnName, createQueryKeyFnName, isQuery } of routes) { %>
+        <%= isQuery ? [queryFnName, createQueryKeyFnName].join(', ') : mutationFnName %>,
+      <% } %>
     }
   }
   

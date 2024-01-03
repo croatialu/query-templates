@@ -1,4 +1,7 @@
-import { genReactQuery, genVueQuery } from './utils'
+import { genReactQueryDefault, genReactQueryModular, genVueQueryDefault, genVueQueryModular } from './utils'
 
-genReactQuery()
-genVueQuery()
+genReactQueryDefault()
+genVueQueryDefault()
+
+genReactQueryModular()
+genVueQueryModular()

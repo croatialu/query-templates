@@ -7,10 +7,9 @@ const { _, pascalCase } = utils
 const combinedArr = it.routes.combined
 const dataContracts = _.map(modelTypes, "name");
 
-const QUERY_TYPE = 'vue'
-
 const isAxiosHttpClient = config.httpClientType === config.constants.HTTP_CLIENT.AXIOS
 
+const QUERY_TYPE = 'react'
 
 const createResponseType = (route) => {
   return `${isAxiosHttpClient ? 'AxiosResponse' : 'HttpResponse'}<${route.response.type}, ${route.response.errorType}>`
@@ -64,11 +63,11 @@ function parseRouteArgs(route){
     return {
       baseArgs,
 
-      queryParamsTypeTmplStr: `{ ${baseArgs.map(({ name, optional, type }) => `${name}${optional ? '?' : ''}: MaybeRef<${type}>`).join(', ')} }`,
+      queryParamsTypeTmplStr: `{ ${baseArgs.map(({ name, optional, type }) => `${name}${optional ? '?' : ''}: ${type}`).join(', ')} }`,
       queryParamsValueTmplStr,
       queryParamsDestructuringTmplStr,
 
-      requestParamsValueTmplStr: `${baseArgs.map(v => `toValue(${v.name})`).join(', ')}`,
+      requestParamsValueTmplStr: `${baseArgs.map(v => v.name).join(', ')}`,
 
     }
   }
@@ -94,20 +93,15 @@ const createQueryKeyTmplStr = (namespace, request, requestArgNames) => {
 }
 
 %>
-import { useQuery, UseQueryReturnType, useQueryClient, UseQueryOptions, MutationOptions, useMutation, UseMutationReturnType } from '@tanstack/vue-query'
-import { MaybeRef, toValue, UnwrapRef } from 'vue'
+import { useQuery, UseQueryResult, useQueryClient, UseQueryOptions, MutationOptions, useMutation, UseMutationResult } from '@tanstack/react-query'
 <% if (isAxiosHttpClient) { %> import type { AxiosRequestConfig, AxiosResponse } from "axios"; <% } %>
 
-import { HttpClient, RequestParams, ContentType, HttpResponse } from "./<%~ config.fileNames.httpClient %>";
+import { 
+  HttpClient, RequestParams, ContentType, HttpResponse,
+  <%~ config.apiClassName %>,
+  <%~ dataContracts.join(', ') %>
+} from "./<%~ config.fileName %>";
 
-<% for( const combined of combinedArr) {%>
-  import { <%= utils.pascalCase(combined.moduleName) %> } from './<%= utils.pascalCase(combined.moduleName) %>'
-
-  <% } %>
-
-<% if (dataContracts.length) { %>
-  import { <%~ dataContracts.join(", ") %> } from "./<%~ config.fileNames.dataContracts %>"
-  <% } %>
 
 /**
   <%= it.apiConfig.info.title %>
@@ -118,8 +112,8 @@ import { HttpClient, RequestParams, ContentType, HttpResponse } from "./<%~ conf
 
 */
 
-type CustomQueryOptions<T, E> = MaybeRef<Omit<UnwrapRef<UseQueryOptions< <%~ isAxiosHttpClient ? 'AxiosResponse' : 'HttpResponse'%><T, E> >>, 'queryKey' | 'queryFn'>>
-type CustomMutationOptions<T, E, V> = MaybeRef<Omit<UnwrapRef<MutationOptions< <%~ isAxiosHttpClient ? 'AxiosResponse' : 'HttpResponse'%><T, E>, E, V >>, 'mutationFn'>>
+type CustomQueryOptions<T, E> = Omit<UseQueryOptions< <%~ isAxiosHttpClient ? 'AxiosResponse' : 'HttpResponse'%><T, E> >, 'queryKey' | 'queryFn'>
+type CustomMutationOptions<T, E, V> = Omit<MutationOptions< <%~ isAxiosHttpClient ? 'AxiosResponse' : 'HttpResponse'%><T, E>, E, V>, 'mutationFn'>
 
 <% for (const combined of combinedArr) { %>
   <% 
@@ -129,7 +123,7 @@ type CustomMutationOptions<T, E, V> = MaybeRef<Omit<UnwrapRef<MutationOptions< <
     const queryUpdateName = `use${moduleClassName}QueryUpdate`
     
   %>
-  export const <%= moduleCreatorName %> = (api: <%= moduleClassName %>) => {
+  export const <%= moduleCreatorName %> = (api: <%~ config.apiClassName %><unknown>) => {
 
     <% 
       const routes = combined.routes.map(item =>  {
@@ -196,9 +190,9 @@ type CustomMutationOptions<T, E, V> = MaybeRef<Omit<UnwrapRef<MutationOptions< <
                       queryKey: <%= createQueryKeyFnName %>(<%~ queryParamsValueTmplStr %>),
                       queryFn: (() => {
                           // @ts-ignore
-                          return api.<%= routeName.usage %>(<%~ requestParamsValueTmplStr %>)
+                          return api.<%= moduleClassName %>.<%= routeName.usage %>(<%~ requestParamsValueTmplStr %>)
                       }) as any
-                  }) as unknown as UseQueryReturnType<<%~ responseType %>, <%~ response.errorType %>>
+                  }) as unknown as UseQueryResult<<%~ responseType %>, <%~ response.errorType %>>
               }
               function <%= createQueryKeyFnName %>(apiParams: <%~ queryParamsTypeTmplStr %> ) {
                   const <%~ queryParamsDestructuringTmplStr %> = apiParams
@@ -214,9 +208,9 @@ type CustomMutationOptions<T, E, V> = MaybeRef<Omit<UnwrapRef<MutationOptions< <
                         const <%~ queryParamsDestructuringTmplStr %> = apiParams
 
                         // @ts-ignore
-                        return api.<%= routeName.usage %>(<%~ requestParamsValueTmplStr %>)
+                        return api.<%= moduleClassName %>.<%= routeName.usage %>(<%~ requestParamsValueTmplStr %>)
                     }) as any
-                }) as unknown as UseMutationReturnType<<%~ responseType %>, <%~ response.errorType %>, <%~ queryParamsTypeTmplStr %>, any>
+                }) as unknown as UseMutationResult<<%~ responseType %>, <%~ response.errorType %>, <%~ queryParamsTypeTmplStr %>, any>
               }
             <% } %>
     <% } %>
@@ -236,7 +230,7 @@ type CustomMutationOptions<T, E, V> = MaybeRef<Omit<UnwrapRef<MutationOptions< <
       const { request } = route
       const { baseArgs } = parseRouteArgs(route)
       const responseType = createResponseType(route)
-      const queryKeyTypeTmplStr = createQueryKeyTmplStr(moduleName, request, baseArgs.map(v => `MaybeRef<${v.type}>`))
+      const queryKeyTypeTmplStr = createQueryKeyTmplStr(moduleName, request, baseArgs.map(v => v.type))
 
       %>
       function setQueryData(
@@ -252,3 +246,19 @@ type CustomMutationOptions<T, E, V> = MaybeRef<Omit<UnwrapRef<MutationOptions< <
   }
   
   <% } %>
+
+  export const create<%~ config.apiClassName %>Query = (api: <%~ config.apiClassName %><unknown>) => {
+    return {
+      <% for (const combined of combinedArr) { %>
+        <% 
+          const moduleName = combined.moduleName
+          const moduleClassName = utils.pascalCase(moduleName)
+          const moduleCreatorName = `create${moduleClassName}Query`
+          const queryUpdateName = `use${moduleClassName}QueryUpdate`
+          
+        %>
+        <%= moduleName %>: <%= moduleCreatorName %>(api),
+        <%= queryUpdateName %>: <%= queryUpdateName %>,
+      <% } %>
+    }
+  }

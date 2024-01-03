@@ -1,14 +1,13 @@
-import { createStoreQuery, usePetQueryUpdate } from '../../__generated__/api-react/Queries'
-import { Store } from '../../__generated__/api-react/Store'
-import { createPetQuery } from './../../__generated__/api-react/Queries'
-import { Pet } from './../../__generated__/api-react/Pet'
+import { createPetQuery, createStoreQuery, usePetQueryUpdate } from '../../__generated__/api-vue-modular/Queries'
+import { Store } from '../../__generated__/api-vue-modular/Store'
+import { Pet } from '../../__generated__/api-vue-modular/Pet'
 
 const petApi = new Pet()
 
 const petQuery = createPetQuery(petApi)
 
 const { data: _data } = petQuery.useFindPetsByStatus({
-  //            ^? AxiosResponse<TypePet[], void> | undefined
+  //            ^?  Ref<AxiosResponse<TypePet[], void>> | Ref<undefined>
   query: {
     status: ['sold'],
   //  ^? ("available" | "pending" | "sold")[]
@@ -35,13 +34,13 @@ const storeQuery = createStoreQuery(storeApi)
 const mutation = storeQuery.usePlaceOrderMutation(
   {
     onSuccess(_data, { body: _body }) {
-      //                ^? TypeOrder
-      //        ^? AxiosResponse<TypeOrder, void>
+      //                ^? MaybeRef<TypeOrder>
+      //        ^? AxiosResponse<TypeOrder>
     },
   },
 )
 
 mutation.mutateAsync({
   body: {},
-  // ^? TypeOrder
+  // ^? MaybeRef<TypeOrder>
 })
