@@ -132,7 +132,7 @@ npx dgit --ref main croatialu/query-templates/templates/modular ./templates
 
 ### Create script file (modular)
 ``` js
-// scripts/gen-api/index.js
+// scripts/gen-api/index.mjs
 
 import { resolve } from 'node:path'
 import process from 'node:process'
@@ -152,6 +152,10 @@ generateApi({
     },
   ],
 })
+```
+### Generate ts file
+``` sh
+node ./scripts/gen-api/index.mjs
 ```
 
 ###
