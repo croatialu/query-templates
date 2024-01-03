@@ -25,14 +25,14 @@ const api = new Api()
 const apiQuery = createApiQuery(api)
 
 const { data: _data } = apiQuery.pet.useFindPetsByStatus({
-  //            ^?  Ref<AxiosResponse<TypePet[], void>> | Ref<undefined>
+  //            ^?  AxiosResponse<TypePet[], void>> | undefined
   query: {
     status: ['sold'],
   //  ^? ("available" | "pending" | "sold")[]
   },
 })
 
-const petQueryUpdate = apiQuery.usePetQueryUpdate()
+const petQueryUpdate = apiQuery.usePetApiQueryUpdate()
 
 petQueryUpdate(
   apiQuery.pet.createFindPetsByStatusQueryKey({
@@ -50,7 +50,7 @@ petQueryUpdate(
 const mutation = apiQuery.store.usePlaceOrderMutation(
   {
     onSuccess(_data, { body: _body }) {
-      //                ^? MaybeRef<TypeOrder>
+      //                ^? TypeOrder
       //        ^? AxiosResponse<TypeOrder>
     },
   },
@@ -58,19 +58,19 @@ const mutation = apiQuery.store.usePlaceOrderMutation(
 
 mutation.mutateAsync({
   body: {},
-  // ^? MaybeRef<TypeOrder>
+  // ^? TypeOrder
 })
 ```
 
 `modular` template
 ``` ts
-import { Pet } from '__generated__/api/Pet'
-import { createPetQuery, createStoreQuery, usePetQueryUpdate } from '__generated__/api/Queries'
-import { Store } from '__generated__/api/Store'
+import { createPetApiQuery, createStoreApiQuery, usePetApiQueryUpdate } from '../../__generated__/api-react-modular/Queries'
+import { Store } from '../../__generated__/api-react-modular/Store'
+import { Pet } from '../../__generated__/api-react-modular/Pet'
 
 const petApi = new Pet()
 
-const petQuery = createPetQuery(petApi)
+const petQuery = createPetApiQuery(petApi)
 
 const { data: _data } = petQuery.useFindPetsByStatus({
   //            ^? AxiosResponse<TypePet[], void> | undefined
@@ -80,7 +80,7 @@ const { data: _data } = petQuery.useFindPetsByStatus({
   },
 })
 
-const petQueryUpdate = usePetQueryUpdate()
+const petQueryUpdate = usePetApiQueryUpdate()
 
 petQueryUpdate(
   petQuery.createFindPetsByStatusQueryKey({
@@ -96,7 +96,7 @@ petQueryUpdate(
 )
 
 const storeApi = new Store()
-const storeQuery = createStoreQuery(storeApi)
+const storeQuery = createStoreApiQuery(storeApi)
 const mutation = storeQuery.usePlaceOrderMutation(
   {
     onSuccess(_data, { body: _body }) {
