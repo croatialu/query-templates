@@ -137,7 +137,7 @@ type CustomMutationOptions<T, E, V> = MaybeRef<Omit<UnwrapRef<MutationOptions< <
     const queryUpdateName = createQueryUpdateName(moduleClassName)
     
   %>
-  export const <%= moduleCreatorName %> = (api: <%= moduleClassName %>) => {
+  export const <%= moduleCreatorName %> = (api: <%= moduleClassName %><unknown>) => {
 
     <% 
       const routes = combined.routes.map(item =>  {

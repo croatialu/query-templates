@@ -135,7 +135,7 @@ type CustomMutationOptions<T, E, V> = Omit<MutationOptions< <%~ isAxiosHttpClien
     const queryUpdateName = createQueryUpdateName(moduleClassName)
     
   %>
-  export const <%= moduleCreatorName %> = (api: <%= moduleClassName %>) => {
+  export const <%= moduleCreatorName %> = (api: <%= moduleClassName %><unknown>) => {
 
     <% 
       const routes = combined.routes.map(item =>  {
