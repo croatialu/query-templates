@@ -12,8 +12,19 @@ const QUERY_TYPE = 'vue'
 const isAxiosHttpClient = config.httpClientType === config.constants.HTTP_CLIENT.AXIOS
 
 
+const createResponseGeneric = (response, error) => {
+  if(config.unwrapResponseData) {
+    return `${response}`
+  }
+
+  return `${isAxiosHttpClient ? 'AxiosResponse' : 'HttpResponse'}<${response}, ${error}>`
+}
+
 const createResponseType = (route) => {
-  return `${isAxiosHttpClient ? 'AxiosResponse' : 'HttpResponse'}<${route.response.type}, ${route.response.errorType}>`
+
+  const { response } = route
+
+  return createResponseGeneric(response.type, response.errorType)
 }
 
 const createModuleCreatorName = (moduleClassName) => {
@@ -122,8 +133,8 @@ import {
 
 */
 
-type CustomQueryOptions<T, E> = MaybeRef<Omit<UnwrapRef<UseQueryOptions< <%~ isAxiosHttpClient ? 'AxiosResponse' : 'HttpResponse'%><T, E> >>, 'queryKey' | 'queryFn'>>
-type CustomMutationOptions<T, E, V> = MaybeRef<Omit<UnwrapRef<MutationOptions< <%~ isAxiosHttpClient ? 'AxiosResponse' : 'HttpResponse'%><T, E>, E, V >>, 'mutationFn'>>
+type CustomQueryOptions<T, E> = MaybeRef<Omit<UnwrapRef<UseQueryOptions< <%~ createResponseGeneric('T', 'E') %> >>, 'queryKey' | 'queryFn'>>
+type CustomMutationOptions<T, E, V> = MaybeRef<Omit<UnwrapRef<MutationOptions< <%~ createResponseGeneric('T', 'E') %>, E, V >>, 'mutationFn'>>
 
 <% for (const combined of combinedArr) { %>
   <% 
@@ -198,10 +209,9 @@ type CustomMutationOptions<T, E, V> = MaybeRef<Omit<UnwrapRef<MutationOptions< <
                   return useQuery({
                       ...queryOptions,
                       queryKey: <%= createQueryKeyFnName %>(<%~ queryParamsValueTmplStr %>),
-                      queryFn: (() => {
-                          // @ts-ignore
-                          return api.<%= moduleClassName %>.<%= routeName.usage %>(<%~ requestParamsValueTmplStr %>)
-                      }) as any
+                      queryFn: () => {
+                          return api.<%= moduleName %>.<%= routeName.usage %>(<%~ requestParamsValueTmplStr %>)
+                      }
                   }) as unknown as UseQueryReturnType<<%~ responseType %>, <%~ response.errorType %>>
               }
               function <%= createQueryKeyFnName %>(apiParams: <%~ queryParamsTypeTmplStr %> ) {
@@ -217,8 +227,7 @@ type CustomMutationOptions<T, E, V> = MaybeRef<Omit<UnwrapRef<MutationOptions< <
                     mutationFn: ((apiParams: <%~ queryParamsTypeTmplStr %>) => {
                         const <%~ queryParamsDestructuringTmplStr %> = apiParams
 
-                        // @ts-ignore
-                        return api.<%= moduleClassName %>.<%= routeName.usage %>(<%~ requestParamsValueTmplStr %>)
+                        return api.<%= moduleName %>.<%= routeName.usage %>(<%~ requestParamsValueTmplStr %>)
                     }) as any
                 }) as unknown as UseMutationReturnType<<%~ responseType %>, <%~ response.errorType %>, <%~ queryParamsTypeTmplStr %>, any>
               }

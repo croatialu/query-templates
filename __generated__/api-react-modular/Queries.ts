@@ -18,7 +18,6 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import type { AxiosResponse } from "axios";
 import { RequestParams } from "./http-client";
 
 import { Pet } from "./Pet";
@@ -35,8 +34,8 @@ import { TypeApiResponse, TypeOrder, TypePet, TypeUser } from "./data-contracts"
   This is a sample server Petstore server.  You can find out more about Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).  For this sample, you can use the api key `special-key` to test the authorization filters.
 */
 
-type CustomQueryOptions<T, E> = Omit<UseQueryOptions<AxiosResponse<T, E>>, "queryKey" | "queryFn">;
-type CustomMutationOptions<T, E, V> = Omit<MutationOptions<AxiosResponse<T, E>, E, V>, "mutationFn">;
+type CustomQueryOptions<T, E> = Omit<UseQueryOptions<T>, "queryKey" | "queryFn">;
+type CustomMutationOptions<T, E, V> = Omit<MutationOptions<T, E, V>, "mutationFn">;
 
 export const createPetApiQuery = (api: Pet<unknown>) => {
   /**
@@ -78,11 +77,10 @@ export const createPetApiQuery = (api: Pet<unknown>) => {
       }) => {
         const { petId, data, requestParams = {} } = apiParams;
 
-        // @ts-ignore
         return api.uploadFile(petId, data, requestParams);
       }) as any,
     }) as unknown as UseMutationResult<
-      AxiosResponse<TypeApiResponse, any>,
+      TypeApiResponse,
       any,
       {
         petId: number;
@@ -115,15 +113,9 @@ export const createPetApiQuery = (api: Pet<unknown>) => {
       mutationFn: ((apiParams: { body: TypePet; requestParams?: RequestParams }) => {
         const { body, requestParams = {} } = apiParams;
 
-        // @ts-ignore
         return api.addPet(body, requestParams);
       }) as any,
-    }) as unknown as UseMutationResult<
-      AxiosResponse<any, void>,
-      void,
-      { body: TypePet; requestParams?: RequestParams },
-      any
-    >;
+    }) as unknown as UseMutationResult<any, void, { body: TypePet; requestParams?: RequestParams }, any>;
   }
 
   /**
@@ -143,15 +135,9 @@ export const createPetApiQuery = (api: Pet<unknown>) => {
       mutationFn: ((apiParams: { body: TypePet; requestParams?: RequestParams }) => {
         const { body, requestParams = {} } = apiParams;
 
-        // @ts-ignore
         return api.updatePet(body, requestParams);
       }) as any,
-    }) as unknown as UseMutationResult<
-      AxiosResponse<any, void>,
-      void,
-      { body: TypePet; requestParams?: RequestParams },
-      any
-    >;
+    }) as unknown as UseMutationResult<any, void, { body: TypePet; requestParams?: RequestParams }, any>;
   }
 
   /**
@@ -177,11 +163,10 @@ export const createPetApiQuery = (api: Pet<unknown>) => {
     return useQuery({
       ...queryOptions,
       queryKey: createFindPetsByStatusQueryKey({ query, requestParams }),
-      queryFn: (() => {
-        // @ts-ignore
+      queryFn: () => {
         return api.findPetsByStatus(query, requestParams);
-      }) as any,
-    }) as unknown as UseQueryResult<AxiosResponse<TypePet[], void>, void>;
+      },
+    }) as unknown as UseQueryResult<TypePet[], void>;
   }
   function createFindPetsByStatusQueryKey(apiParams: {
     query: {
@@ -218,11 +203,10 @@ export const createPetApiQuery = (api: Pet<unknown>) => {
     return useQuery({
       ...queryOptions,
       queryKey: createFindPetsByTagsQueryKey({ query, requestParams }),
-      queryFn: (() => {
-        // @ts-ignore
+      queryFn: () => {
         return api.findPetsByTags(query, requestParams);
-      }) as any,
-    }) as unknown as UseQueryResult<AxiosResponse<TypePet[], void>, void>;
+      },
+    }) as unknown as UseQueryResult<TypePet[], void>;
   }
   function createFindPetsByTagsQueryKey(apiParams: {
     query: {
@@ -252,11 +236,10 @@ export const createPetApiQuery = (api: Pet<unknown>) => {
     return useQuery({
       ...queryOptions,
       queryKey: createGetPetByIdQueryKey({ petId, requestParams }),
-      queryFn: (() => {
-        // @ts-ignore
+      queryFn: () => {
         return api.getPetById(petId, requestParams);
-      }) as any,
-    }) as unknown as UseQueryResult<AxiosResponse<TypePet, void>, void>;
+      },
+    }) as unknown as UseQueryResult<TypePet, void>;
   }
   function createGetPetByIdQueryKey(apiParams: { petId: number; requestParams?: RequestParams }) {
     const { petId, requestParams = {} } = apiParams;
@@ -302,11 +285,10 @@ export const createPetApiQuery = (api: Pet<unknown>) => {
       }) => {
         const { petId, data, requestParams = {} } = apiParams;
 
-        // @ts-ignore
         return api.updatePetWithForm(petId, data, requestParams);
       }) as any,
     }) as unknown as UseMutationResult<
-      AxiosResponse<any, void>,
+      any,
       void,
       {
         petId: number;
@@ -339,15 +321,9 @@ export const createPetApiQuery = (api: Pet<unknown>) => {
       mutationFn: ((apiParams: { petId: number; requestParams?: RequestParams }) => {
         const { petId, requestParams = {} } = apiParams;
 
-        // @ts-ignore
         return api.deletePet(petId, requestParams);
       }) as any,
-    }) as unknown as UseMutationResult<
-      AxiosResponse<any, void>,
-      void,
-      { petId: number; requestParams?: RequestParams },
-      any
-    >;
+    }) as unknown as UseMutationResult<any, void, { petId: number; requestParams?: RequestParams }, any>;
   }
 
   return {
@@ -384,16 +360,16 @@ export function usePetApiQueryUpdate() {
       },
       RequestParams,
     ],
-    updater: (data: AxiosResponse<TypeApiResponse, any>) => AxiosResponse<TypeApiResponse, any>,
-  ): Promise<AxiosResponse<TypeApiResponse, any>>;
+    updater: (data: TypeApiResponse) => TypeApiResponse,
+  ): Promise<TypeApiResponse>;
   function setQueryData(
     queryKey: readonly ["swagger-typescript-api", "pet", "post", "/pet", TypePet, RequestParams],
-    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
-  ): Promise<AxiosResponse<any, void>>;
+    updater: (data: any) => any,
+  ): Promise<any>;
   function setQueryData(
     queryKey: readonly ["swagger-typescript-api", "pet", "put", "/pet", TypePet, RequestParams],
-    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
-  ): Promise<AxiosResponse<any, void>>;
+    updater: (data: any) => any,
+  ): Promise<any>;
   function setQueryData(
     queryKey: readonly [
       "swagger-typescript-api",
@@ -406,8 +382,8 @@ export function usePetApiQueryUpdate() {
       },
       RequestParams,
     ],
-    updater: (data: AxiosResponse<TypePet[], void>) => AxiosResponse<TypePet[], void>,
-  ): Promise<AxiosResponse<TypePet[], void>>;
+    updater: (data: TypePet[]) => TypePet[],
+  ): Promise<TypePet[]>;
   function setQueryData(
     queryKey: readonly [
       "swagger-typescript-api",
@@ -420,12 +396,12 @@ export function usePetApiQueryUpdate() {
       },
       RequestParams,
     ],
-    updater: (data: AxiosResponse<TypePet[], void>) => AxiosResponse<TypePet[], void>,
-  ): Promise<AxiosResponse<TypePet[], void>>;
+    updater: (data: TypePet[]) => TypePet[],
+  ): Promise<TypePet[]>;
   function setQueryData(
     queryKey: readonly ["swagger-typescript-api", "pet", "get", "/pet/${petId}", number, RequestParams],
-    updater: (data: AxiosResponse<TypePet, void>) => AxiosResponse<TypePet, void>,
-  ): Promise<AxiosResponse<TypePet, void>>;
+    updater: (data: TypePet) => TypePet,
+  ): Promise<TypePet>;
   function setQueryData(
     queryKey: readonly [
       "swagger-typescript-api",
@@ -441,12 +417,12 @@ export function usePetApiQueryUpdate() {
       },
       RequestParams,
     ],
-    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
-  ): Promise<AxiosResponse<any, void>>;
+    updater: (data: any) => any,
+  ): Promise<any>;
   function setQueryData(
     queryKey: readonly ["swagger-typescript-api", "pet", "delete", "/pet/${petId}", number, RequestParams],
-    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
-  ): Promise<AxiosResponse<any, void>>;
+    updater: (data: any) => any,
+  ): Promise<any>;
   function setQueryData(queryKey: any, updater: any) {
     return queryClient.setQueryData(queryKey, updater);
   }
@@ -471,15 +447,9 @@ export const createStoreApiQuery = (api: Store<unknown>) => {
       mutationFn: ((apiParams: { body: TypeOrder; requestParams?: RequestParams }) => {
         const { body, requestParams = {} } = apiParams;
 
-        // @ts-ignore
         return api.placeOrder(body, requestParams);
       }) as any,
-    }) as unknown as UseMutationResult<
-      AxiosResponse<TypeOrder, void>,
-      void,
-      { body: TypeOrder; requestParams?: RequestParams },
-      any
-    >;
+    }) as unknown as UseMutationResult<TypeOrder, void, { body: TypeOrder; requestParams?: RequestParams }, any>;
   }
 
   /**
@@ -498,11 +468,10 @@ export const createStoreApiQuery = (api: Store<unknown>) => {
     return useQuery({
       ...queryOptions,
       queryKey: createGetOrderByIdQueryKey({ orderId, requestParams }),
-      queryFn: (() => {
-        // @ts-ignore
+      queryFn: () => {
         return api.getOrderById(orderId, requestParams);
-      }) as any,
-    }) as unknown as UseQueryResult<AxiosResponse<TypeOrder, void>, void>;
+      },
+    }) as unknown as UseQueryResult<TypeOrder, void>;
   }
   function createGetOrderByIdQueryKey(apiParams: { orderId: number; requestParams?: RequestParams }) {
     const { orderId, requestParams = {} } = apiParams;
@@ -525,15 +494,9 @@ export const createStoreApiQuery = (api: Store<unknown>) => {
       mutationFn: ((apiParams: { orderId: number; requestParams?: RequestParams }) => {
         const { orderId, requestParams = {} } = apiParams;
 
-        // @ts-ignore
         return api.deleteOrder(orderId, requestParams);
       }) as any,
-    }) as unknown as UseMutationResult<
-      AxiosResponse<any, void>,
-      void,
-      { orderId: number; requestParams?: RequestParams },
-      any
-    >;
+    }) as unknown as UseMutationResult<any, void, { orderId: number; requestParams?: RequestParams }, any>;
   }
 
   /**
@@ -553,11 +516,10 @@ export const createStoreApiQuery = (api: Store<unknown>) => {
     return useQuery({
       ...queryOptions,
       queryKey: createGetInventoryQueryKey({ requestParams }),
-      queryFn: (() => {
-        // @ts-ignore
+      queryFn: () => {
         return api.getInventory(requestParams);
-      }) as any,
-    }) as unknown as UseQueryResult<AxiosResponse<Record<string, number>, any>, any>;
+      },
+    }) as unknown as UseQueryResult<Record<string, number>, any>;
   }
   function createGetInventoryQueryKey(apiParams: { requestParams?: RequestParams }) {
     const { requestParams = {} } = apiParams;
@@ -580,20 +542,20 @@ export function useStoreApiQueryUpdate() {
 
   function setQueryData(
     queryKey: readonly ["swagger-typescript-api", "store", "post", "/store/order", TypeOrder, RequestParams],
-    updater: (data: AxiosResponse<TypeOrder, void>) => AxiosResponse<TypeOrder, void>,
-  ): Promise<AxiosResponse<TypeOrder, void>>;
+    updater: (data: TypeOrder) => TypeOrder,
+  ): Promise<TypeOrder>;
   function setQueryData(
     queryKey: readonly ["swagger-typescript-api", "store", "get", "/store/order/${orderId}", number, RequestParams],
-    updater: (data: AxiosResponse<TypeOrder, void>) => AxiosResponse<TypeOrder, void>,
-  ): Promise<AxiosResponse<TypeOrder, void>>;
+    updater: (data: TypeOrder) => TypeOrder,
+  ): Promise<TypeOrder>;
   function setQueryData(
     queryKey: readonly ["swagger-typescript-api", "store", "delete", "/store/order/${orderId}", number, RequestParams],
-    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
-  ): Promise<AxiosResponse<any, void>>;
+    updater: (data: any) => any,
+  ): Promise<any>;
   function setQueryData(
     queryKey: readonly ["swagger-typescript-api", "store", "get", "/store/inventory", RequestParams],
-    updater: (data: AxiosResponse<Record<string, number>, any>) => AxiosResponse<Record<string, number>, any>,
-  ): Promise<AxiosResponse<Record<string, number>, any>>;
+    updater: (data: Record<string, number>) => Record<string, number>,
+  ): Promise<Record<string, number>>;
   function setQueryData(queryKey: any, updater: any) {
     return queryClient.setQueryData(queryKey, updater);
   }
@@ -618,15 +580,9 @@ export const createUserApiQuery = (api: User<unknown>) => {
       mutationFn: ((apiParams: { body: TypeUser[]; requestParams?: RequestParams }) => {
         const { body, requestParams = {} } = apiParams;
 
-        // @ts-ignore
         return api.createUsersWithArrayInput(body, requestParams);
       }) as any,
-    }) as unknown as UseMutationResult<
-      AxiosResponse<any, void>,
-      void,
-      { body: TypeUser[]; requestParams?: RequestParams },
-      any
-    >;
+    }) as unknown as UseMutationResult<any, void, { body: TypeUser[]; requestParams?: RequestParams }, any>;
   }
 
   /**
@@ -645,15 +601,9 @@ export const createUserApiQuery = (api: User<unknown>) => {
       mutationFn: ((apiParams: { body: TypeUser[]; requestParams?: RequestParams }) => {
         const { body, requestParams = {} } = apiParams;
 
-        // @ts-ignore
         return api.createUsersWithListInput(body, requestParams);
       }) as any,
-    }) as unknown as UseMutationResult<
-      AxiosResponse<any, void>,
-      void,
-      { body: TypeUser[]; requestParams?: RequestParams },
-      any
-    >;
+    }) as unknown as UseMutationResult<any, void, { body: TypeUser[]; requestParams?: RequestParams }, any>;
   }
 
   /**
@@ -672,11 +622,10 @@ export const createUserApiQuery = (api: User<unknown>) => {
     return useQuery({
       ...queryOptions,
       queryKey: createGetUserByNameQueryKey({ username, requestParams }),
-      queryFn: (() => {
-        // @ts-ignore
+      queryFn: () => {
         return api.getUserByName(username, requestParams);
-      }) as any,
-    }) as unknown as UseQueryResult<AxiosResponse<TypeUser, void>, void>;
+      },
+    }) as unknown as UseQueryResult<TypeUser, void>;
   }
   function createGetUserByNameQueryKey(apiParams: { username: string; requestParams?: RequestParams }) {
     const { username, requestParams = {} } = apiParams;
@@ -703,11 +652,10 @@ export const createUserApiQuery = (api: User<unknown>) => {
       mutationFn: ((apiParams: { username: string; body: TypeUser; requestParams?: RequestParams }) => {
         const { username, body, requestParams = {} } = apiParams;
 
-        // @ts-ignore
         return api.updateUser(username, body, requestParams);
       }) as any,
     }) as unknown as UseMutationResult<
-      AxiosResponse<any, void>,
+      any,
       void,
       { username: string; body: TypeUser; requestParams?: RequestParams },
       any
@@ -730,15 +678,9 @@ export const createUserApiQuery = (api: User<unknown>) => {
       mutationFn: ((apiParams: { username: string; requestParams?: RequestParams }) => {
         const { username, requestParams = {} } = apiParams;
 
-        // @ts-ignore
         return api.deleteUser(username, requestParams);
       }) as any,
-    }) as unknown as UseMutationResult<
-      AxiosResponse<any, void>,
-      void,
-      { username: string; requestParams?: RequestParams },
-      any
-    >;
+    }) as unknown as UseMutationResult<any, void, { username: string; requestParams?: RequestParams }, any>;
   }
 
   /**
@@ -765,11 +707,10 @@ export const createUserApiQuery = (api: User<unknown>) => {
     return useQuery({
       ...queryOptions,
       queryKey: createLoginUserQueryKey({ query, requestParams }),
-      queryFn: (() => {
-        // @ts-ignore
+      queryFn: () => {
         return api.loginUser(query, requestParams);
-      }) as any,
-    }) as unknown as UseQueryResult<AxiosResponse<string, void>, void>;
+      },
+    }) as unknown as UseQueryResult<string, void>;
   }
   function createLoginUserQueryKey(apiParams: {
     query: {
@@ -800,11 +741,10 @@ export const createUserApiQuery = (api: User<unknown>) => {
     return useQuery({
       ...queryOptions,
       queryKey: createLogoutUserQueryKey({ requestParams }),
-      queryFn: (() => {
-        // @ts-ignore
+      queryFn: () => {
         return api.logoutUser(requestParams);
-      }) as any,
-    }) as unknown as UseQueryResult<AxiosResponse<any, void>, void>;
+      },
+    }) as unknown as UseQueryResult<any, void>;
   }
   function createLogoutUserQueryKey(apiParams: { requestParams?: RequestParams }) {
     const { requestParams = {} } = apiParams;
@@ -827,15 +767,9 @@ export const createUserApiQuery = (api: User<unknown>) => {
       mutationFn: ((apiParams: { body: TypeUser; requestParams?: RequestParams }) => {
         const { body, requestParams = {} } = apiParams;
 
-        // @ts-ignore
         return api.createUser(body, requestParams);
       }) as any,
-    }) as unknown as UseMutationResult<
-      AxiosResponse<any, void>,
-      void,
-      { body: TypeUser; requestParams?: RequestParams },
-      any
-    >;
+    }) as unknown as UseMutationResult<any, void, { body: TypeUser; requestParams?: RequestParams }, any>;
   }
 
   return {
@@ -859,24 +793,24 @@ export function useUserApiQueryUpdate() {
 
   function setQueryData(
     queryKey: readonly ["swagger-typescript-api", "user", "post", "/user/createWithArray", TypeUser[], RequestParams],
-    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
-  ): Promise<AxiosResponse<any, void>>;
+    updater: (data: any) => any,
+  ): Promise<any>;
   function setQueryData(
     queryKey: readonly ["swagger-typescript-api", "user", "post", "/user/createWithList", TypeUser[], RequestParams],
-    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
-  ): Promise<AxiosResponse<any, void>>;
+    updater: (data: any) => any,
+  ): Promise<any>;
   function setQueryData(
     queryKey: readonly ["swagger-typescript-api", "user", "get", "/user/${username}", string, RequestParams],
-    updater: (data: AxiosResponse<TypeUser, void>) => AxiosResponse<TypeUser, void>,
-  ): Promise<AxiosResponse<TypeUser, void>>;
+    updater: (data: TypeUser) => TypeUser,
+  ): Promise<TypeUser>;
   function setQueryData(
     queryKey: readonly ["swagger-typescript-api", "user", "put", "/user/${username}", string, TypeUser, RequestParams],
-    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
-  ): Promise<AxiosResponse<any, void>>;
+    updater: (data: any) => any,
+  ): Promise<any>;
   function setQueryData(
     queryKey: readonly ["swagger-typescript-api", "user", "delete", "/user/${username}", string, RequestParams],
-    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
-  ): Promise<AxiosResponse<any, void>>;
+    updater: (data: any) => any,
+  ): Promise<any>;
   function setQueryData(
     queryKey: readonly [
       "swagger-typescript-api",
@@ -891,16 +825,16 @@ export function useUserApiQueryUpdate() {
       },
       RequestParams,
     ],
-    updater: (data: AxiosResponse<string, void>) => AxiosResponse<string, void>,
-  ): Promise<AxiosResponse<string, void>>;
+    updater: (data: string) => string,
+  ): Promise<string>;
   function setQueryData(
     queryKey: readonly ["swagger-typescript-api", "user", "get", "/user/logout", RequestParams],
-    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
-  ): Promise<AxiosResponse<any, void>>;
+    updater: (data: any) => any,
+  ): Promise<any>;
   function setQueryData(
     queryKey: readonly ["swagger-typescript-api", "user", "post", "/user", TypeUser, RequestParams],
-    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
-  ): Promise<AxiosResponse<any, void>>;
+    updater: (data: any) => any,
+  ): Promise<any>;
   function setQueryData(queryKey: any, updater: any) {
     return queryClient.setQueryData(queryKey, updater);
   }
