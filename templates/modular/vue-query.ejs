@@ -260,3 +260,32 @@ type CustomMutationOptions<T, E, V> = MaybeRef<Omit<UnwrapRef<MutationOptions< <
   }
   
   <% } %>
+
+
+  <% 
+  const createQueryParamsTypeStr = `{ ${combinedArr.map(({ moduleName }) => {
+    const moduleClassName = utils.pascalCase(moduleName)
+
+    return `${moduleName}: ${moduleClassName}`
+  }).join(', ')} }`
+  const createQueryParamsDestructuringStr = `{ ${combinedArr.map(({ moduleName }) => moduleName).join(', ')} }`
+  
+  %>
+  export const create<%~ config.apiClassName %>Query = (modules: <%~ createQueryParamsTypeStr %>) => {
+
+    const <%~ createQueryParamsDestructuringStr %> = modules
+
+    return {
+      <% for (const combined of combinedArr) { %>
+        <% 
+          const moduleName = combined.moduleName
+          const moduleClassName = utils.pascalCase(moduleName)
+          const moduleCreatorName = createModuleCreatorName(moduleClassName)
+          const queryUpdateName = createQueryUpdateName(moduleClassName)
+          
+        %>
+        <%= moduleName %>: <%= moduleCreatorName %>(<%~ moduleName %>),
+        <%= queryUpdateName %>: <%= queryUpdateName %>,
+      <% } %>
+    }
+  }

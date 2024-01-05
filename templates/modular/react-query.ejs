@@ -258,3 +258,20 @@ type CustomMutationOptions<T, E, V> = Omit<MutationOptions< <%~ isAxiosHttpClien
   }
   
   <% } %>
+
+
+  export const create<%~ config.apiClassName %>Query = (api: <%~ config.apiClassName %><unknown>) => {
+    return {
+      <% for (const combined of combinedArr) { %>
+        <% 
+          const moduleName = combined.moduleName
+          const moduleClassName = utils.pascalCase(moduleName)
+          const moduleCreatorName = createModuleCreatorName(moduleClassName)
+          const queryUpdateName = createQueryUpdateName(moduleClassName)
+          
+        %>
+        <%= moduleName %>: <%= moduleCreatorName %>(api),
+        <%= queryUpdateName %>: <%= queryUpdateName %>,
+      <% } %>
+    }
+  }

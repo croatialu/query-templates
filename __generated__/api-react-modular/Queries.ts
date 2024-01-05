@@ -38,7 +38,7 @@ import { TypeApiResponse, TypeOrder, TypePet, TypeUser } from "./data-contracts"
 type CustomQueryOptions<T, E> = Omit<UseQueryOptions<AxiosResponse<T, E>>, "queryKey" | "queryFn">;
 type CustomMutationOptions<T, E, V> = Omit<MutationOptions<AxiosResponse<T, E>, E, V>, "mutationFn">;
 
-export const createPetApiQuery = (api: Pet) => {
+export const createPetApiQuery = (api: Pet<unknown>) => {
   /**
    * No description
    *
@@ -453,7 +453,7 @@ export const usePetApiQueryUpdate = () => {
   return setQueryData;
 };
 
-export const createStoreApiQuery = (api: Store) => {
+export const createStoreApiQuery = (api: Store<unknown>) => {
   /**
    * No description
    *
@@ -599,7 +599,7 @@ export const useStoreApiQueryUpdate = () => {
   return setQueryData;
 };
 
-export const createUserApiQuery = (api: User) => {
+export const createUserApiQuery = (api: User<unknown>) => {
   /**
    * No description
    *
@@ -903,4 +903,15 @@ export const useUserApiQueryUpdate = () => {
   }
 
   return setQueryData;
+};
+
+export const createApiQuery = (api: Api<unknown>) => {
+  return {
+    pet: createPetApiQuery(api),
+    usePetApiQueryUpdate: usePetApiQueryUpdate,
+    store: createStoreApiQuery(api),
+    useStoreApiQueryUpdate: useStoreApiQueryUpdate,
+    user: createUserApiQuery(api),
+    useUserApiQueryUpdate: useUserApiQueryUpdate,
+  };
 };
