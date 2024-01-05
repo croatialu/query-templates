@@ -32,7 +32,7 @@ const { data: _data } = apiQuery.pet.useFindPetsByStatus({
   },
 })
 
-const petQueryUpdate = apiQuery.usePetApiQueryUpdate()
+const petQueryUpdate = apiQuery.pet.useQueryUpdate()
 
 petQueryUpdate(
   apiQuery.pet.createFindPetsByStatusQueryKey({

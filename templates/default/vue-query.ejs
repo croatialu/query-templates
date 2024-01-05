@@ -226,13 +226,14 @@ type CustomMutationOptions<T, E, V> = MaybeRef<Omit<UnwrapRef<MutationOptions< <
     <% } %>
 
     return {
+      useQueryUpdate: <%= queryUpdateName %>,
       <% for (const { route, queryFnName, mutationFnName, createQueryKeyFnName, isQuery } of routes) { %>
         <%= isQuery ? [queryFnName, createQueryKeyFnName].join(', ') : mutationFnName %>,
       <% } %>
     }
   }
   
-  export const <%= queryUpdateName %> = () => {
+  export function <%= queryUpdateName %>() {
     const queryClient = useQueryClient()
   
     <% for (const route of combined.routes) { %>
@@ -268,7 +269,6 @@ type CustomMutationOptions<T, E, V> = MaybeRef<Omit<UnwrapRef<MutationOptions< <
           
         %>
         <%= moduleName %>: <%= moduleCreatorName %>(api),
-        <%= queryUpdateName %>: <%= queryUpdateName %>,
       <% } %>
     }
   }

@@ -366,6 +366,7 @@ export const createPetApiQuery = (api: Pet<unknown>) => {
   }
 
   return {
+    useQueryUpdate: usePetApiQueryUpdate,
     useUploadFileMutation,
     useAddPetMutation,
     useUpdatePetMutation,
@@ -380,7 +381,7 @@ export const createPetApiQuery = (api: Pet<unknown>) => {
   };
 };
 
-export const usePetApiQueryUpdate = () => {
+export function usePetApiQueryUpdate() {
   const queryClient = useQueryClient();
 
   function setQueryData(
@@ -480,7 +481,7 @@ export const usePetApiQueryUpdate = () => {
   }
 
   return setQueryData;
-};
+}
 
 export const createStoreApiQuery = (api: Store<unknown>) => {
   /**
@@ -604,6 +605,7 @@ export const createStoreApiQuery = (api: Store<unknown>) => {
   }
 
   return {
+    useQueryUpdate: useStoreApiQueryUpdate,
     usePlaceOrderMutation,
     useGetOrderById,
     createGetOrderByIdQueryKey,
@@ -613,7 +615,7 @@ export const createStoreApiQuery = (api: Store<unknown>) => {
   };
 };
 
-export const useStoreApiQueryUpdate = () => {
+export function useStoreApiQueryUpdate() {
   const queryClient = useQueryClient();
 
   function setQueryData(
@@ -658,7 +660,7 @@ export const useStoreApiQueryUpdate = () => {
   }
 
   return setQueryData;
-};
+}
 
 export const createUserApiQuery = (api: User<unknown>) => {
   /**
@@ -921,6 +923,7 @@ export const createUserApiQuery = (api: User<unknown>) => {
   }
 
   return {
+    useQueryUpdate: useUserApiQueryUpdate,
     useCreateUsersWithArrayInputMutation,
     useCreateUsersWithListInputMutation,
     useGetUserByName,
@@ -935,7 +938,7 @@ export const createUserApiQuery = (api: User<unknown>) => {
   };
 };
 
-export const useUserApiQueryUpdate = () => {
+export function useUserApiQueryUpdate() {
   const queryClient = useQueryClient();
 
   function setQueryData(
@@ -1023,17 +1026,14 @@ export const useUserApiQueryUpdate = () => {
   }
 
   return setQueryData;
-};
+}
 
 export const createApiQuery = (modules: { pet: Pet; store: Store; user: User }) => {
   const { pet, store, user } = modules;
 
   return {
     pet: createPetApiQuery(pet),
-    usePetApiQueryUpdate: usePetApiQueryUpdate,
     store: createStoreApiQuery(store),
-    useStoreApiQueryUpdate: useStoreApiQueryUpdate,
     user: createUserApiQuery(user),
-    useUserApiQueryUpdate: useUserApiQueryUpdate,
   };
 };
