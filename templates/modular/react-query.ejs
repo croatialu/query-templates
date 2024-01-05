@@ -260,7 +260,19 @@ type CustomMutationOptions<T, E, V> = Omit<MutationOptions< <%~ isAxiosHttpClien
   <% } %>
 
 
-  export const create<%~ config.apiClassName %>Query = (api: <%~ config.apiClassName %><unknown>) => {
+  <% 
+  const createQueryParamsTypeStr = `{ ${combinedArr.map(({ moduleName }) => {
+    const moduleClassName = utils.pascalCase(moduleName)
+
+    return `${moduleName}: ${moduleClassName}`
+  }).join(', ')} }`
+  const createQueryParamsDestructuringStr = `{ ${combinedArr.map(({ moduleName }) => moduleName).join(', ')} }`
+  
+  %>
+  export const create<%~ config.apiClassName %>Query = (modules: <%~ createQueryParamsTypeStr %>) => {
+
+    const <%~ createQueryParamsDestructuringStr %> = modules
+
     return {
       <% for (const combined of combinedArr) { %>
         <% 
@@ -270,7 +282,7 @@ type CustomMutationOptions<T, E, V> = Omit<MutationOptions< <%~ isAxiosHttpClien
           const queryUpdateName = createQueryUpdateName(moduleClassName)
           
         %>
-        <%= moduleName %>: <%= moduleCreatorName %>(api),
+        <%= moduleName %>: <%= moduleCreatorName %>(<%~ moduleName %>),
         <%= queryUpdateName %>: <%= queryUpdateName %>,
       <% } %>
     }
