@@ -9,15 +9,7 @@
  * ---------------------------------------------------------------
  */
 
-import {
-  MutationOptions,
-  UseMutationResult,
-  UseQueryOptions,
-  UseQueryResult,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { MutationOptions, UseQueryOptions, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { RequestParams } from "./http-client";
 
 import { Pet } from "./Pet";
@@ -65,7 +57,7 @@ export const createPetApiQuery = (api: Pet<unknown>) => {
   ) {
     return useMutation({
       ...mutationOptions,
-      mutationFn: ((apiParams: {
+      mutationFn: (apiParams: {
         petId: number;
         data: {
           /** Additional data to pass to server */
@@ -78,22 +70,8 @@ export const createPetApiQuery = (api: Pet<unknown>) => {
         const { petId, data, requestParams = {} } = apiParams;
 
         return api.uploadFile(petId, data, requestParams);
-      }) as any,
-    }) as unknown as UseMutationResult<
-      TypeApiResponse,
-      any,
-      {
-        petId: number;
-        data: {
-          /** Additional data to pass to server */
-          additionalMetadata?: string;
-          /** file to upload */
-          file?: File;
-        };
-        requestParams?: RequestParams;
       },
-      any
-    >;
+    });
   }
 
   /**
@@ -110,12 +88,12 @@ export const createPetApiQuery = (api: Pet<unknown>) => {
   ) {
     return useMutation({
       ...mutationOptions,
-      mutationFn: ((apiParams: { body: TypePet; requestParams?: RequestParams }) => {
+      mutationFn: (apiParams: { body: TypePet; requestParams?: RequestParams }) => {
         const { body, requestParams = {} } = apiParams;
 
         return api.addPet(body, requestParams);
-      }) as any,
-    }) as unknown as UseMutationResult<any, void, { body: TypePet; requestParams?: RequestParams }, any>;
+      },
+    });
   }
 
   /**
@@ -132,12 +110,12 @@ export const createPetApiQuery = (api: Pet<unknown>) => {
   ) {
     return useMutation({
       ...mutationOptions,
-      mutationFn: ((apiParams: { body: TypePet; requestParams?: RequestParams }) => {
+      mutationFn: (apiParams: { body: TypePet; requestParams?: RequestParams }) => {
         const { body, requestParams = {} } = apiParams;
 
         return api.updatePet(body, requestParams);
-      }) as any,
-    }) as unknown as UseMutationResult<any, void, { body: TypePet; requestParams?: RequestParams }, any>;
+      },
+    });
   }
 
   /**
@@ -166,7 +144,7 @@ export const createPetApiQuery = (api: Pet<unknown>) => {
       queryFn: () => {
         return api.findPetsByStatus(query, requestParams);
       },
-    }) as unknown as UseQueryResult<TypePet[], void>;
+    });
   }
   function createFindPetsByStatusQueryKey(apiParams: {
     query: {
@@ -206,7 +184,7 @@ export const createPetApiQuery = (api: Pet<unknown>) => {
       queryFn: () => {
         return api.findPetsByTags(query, requestParams);
       },
-    }) as unknown as UseQueryResult<TypePet[], void>;
+    });
   }
   function createFindPetsByTagsQueryKey(apiParams: {
     query: {
@@ -239,7 +217,7 @@ export const createPetApiQuery = (api: Pet<unknown>) => {
       queryFn: () => {
         return api.getPetById(petId, requestParams);
       },
-    }) as unknown as UseQueryResult<TypePet, void>;
+    });
   }
   function createGetPetByIdQueryKey(apiParams: { petId: number; requestParams?: RequestParams }) {
     const { petId, requestParams = {} } = apiParams;
@@ -273,7 +251,7 @@ export const createPetApiQuery = (api: Pet<unknown>) => {
   ) {
     return useMutation({
       ...mutationOptions,
-      mutationFn: ((apiParams: {
+      mutationFn: (apiParams: {
         petId: number;
         data: {
           /** Updated name of the pet */
@@ -286,22 +264,8 @@ export const createPetApiQuery = (api: Pet<unknown>) => {
         const { petId, data, requestParams = {} } = apiParams;
 
         return api.updatePetWithForm(petId, data, requestParams);
-      }) as any,
-    }) as unknown as UseMutationResult<
-      any,
-      void,
-      {
-        petId: number;
-        data: {
-          /** Updated name of the pet */
-          name?: string;
-          /** Updated status of the pet */
-          status?: string;
-        };
-        requestParams?: RequestParams;
       },
-      any
-    >;
+    });
   }
 
   /**
@@ -318,12 +282,12 @@ export const createPetApiQuery = (api: Pet<unknown>) => {
   ) {
     return useMutation({
       ...mutationOptions,
-      mutationFn: ((apiParams: { petId: number; requestParams?: RequestParams }) => {
+      mutationFn: (apiParams: { petId: number; requestParams?: RequestParams }) => {
         const { petId, requestParams = {} } = apiParams;
 
         return api.deletePet(petId, requestParams);
-      }) as any,
-    }) as unknown as UseMutationResult<any, void, { petId: number; requestParams?: RequestParams }, any>;
+      },
+    });
   }
 
   return {
@@ -444,12 +408,12 @@ export const createStoreApiQuery = (api: Store<unknown>) => {
   ) {
     return useMutation({
       ...mutationOptions,
-      mutationFn: ((apiParams: { body: TypeOrder; requestParams?: RequestParams }) => {
+      mutationFn: (apiParams: { body: TypeOrder; requestParams?: RequestParams }) => {
         const { body, requestParams = {} } = apiParams;
 
         return api.placeOrder(body, requestParams);
-      }) as any,
-    }) as unknown as UseMutationResult<TypeOrder, void, { body: TypeOrder; requestParams?: RequestParams }, any>;
+      },
+    });
   }
 
   /**
@@ -471,7 +435,7 @@ export const createStoreApiQuery = (api: Store<unknown>) => {
       queryFn: () => {
         return api.getOrderById(orderId, requestParams);
       },
-    }) as unknown as UseQueryResult<TypeOrder, void>;
+    });
   }
   function createGetOrderByIdQueryKey(apiParams: { orderId: number; requestParams?: RequestParams }) {
     const { orderId, requestParams = {} } = apiParams;
@@ -491,12 +455,12 @@ export const createStoreApiQuery = (api: Store<unknown>) => {
   ) {
     return useMutation({
       ...mutationOptions,
-      mutationFn: ((apiParams: { orderId: number; requestParams?: RequestParams }) => {
+      mutationFn: (apiParams: { orderId: number; requestParams?: RequestParams }) => {
         const { orderId, requestParams = {} } = apiParams;
 
         return api.deleteOrder(orderId, requestParams);
-      }) as any,
-    }) as unknown as UseMutationResult<any, void, { orderId: number; requestParams?: RequestParams }, any>;
+      },
+    });
   }
 
   /**
@@ -519,7 +483,7 @@ export const createStoreApiQuery = (api: Store<unknown>) => {
       queryFn: () => {
         return api.getInventory(requestParams);
       },
-    }) as unknown as UseQueryResult<Record<string, number>, any>;
+    });
   }
   function createGetInventoryQueryKey(apiParams: { requestParams?: RequestParams }) {
     const { requestParams = {} } = apiParams;
@@ -577,12 +541,12 @@ export const createUserApiQuery = (api: User<unknown>) => {
   ) {
     return useMutation({
       ...mutationOptions,
-      mutationFn: ((apiParams: { body: TypeUser[]; requestParams?: RequestParams }) => {
+      mutationFn: (apiParams: { body: TypeUser[]; requestParams?: RequestParams }) => {
         const { body, requestParams = {} } = apiParams;
 
         return api.createUsersWithArrayInput(body, requestParams);
-      }) as any,
-    }) as unknown as UseMutationResult<any, void, { body: TypeUser[]; requestParams?: RequestParams }, any>;
+      },
+    });
   }
 
   /**
@@ -598,12 +562,12 @@ export const createUserApiQuery = (api: User<unknown>) => {
   ) {
     return useMutation({
       ...mutationOptions,
-      mutationFn: ((apiParams: { body: TypeUser[]; requestParams?: RequestParams }) => {
+      mutationFn: (apiParams: { body: TypeUser[]; requestParams?: RequestParams }) => {
         const { body, requestParams = {} } = apiParams;
 
         return api.createUsersWithListInput(body, requestParams);
-      }) as any,
-    }) as unknown as UseMutationResult<any, void, { body: TypeUser[]; requestParams?: RequestParams }, any>;
+      },
+    });
   }
 
   /**
@@ -625,7 +589,7 @@ export const createUserApiQuery = (api: User<unknown>) => {
       queryFn: () => {
         return api.getUserByName(username, requestParams);
       },
-    }) as unknown as UseQueryResult<TypeUser, void>;
+    });
   }
   function createGetUserByNameQueryKey(apiParams: { username: string; requestParams?: RequestParams }) {
     const { username, requestParams = {} } = apiParams;
@@ -649,17 +613,12 @@ export const createUserApiQuery = (api: User<unknown>) => {
   ) {
     return useMutation({
       ...mutationOptions,
-      mutationFn: ((apiParams: { username: string; body: TypeUser; requestParams?: RequestParams }) => {
+      mutationFn: (apiParams: { username: string; body: TypeUser; requestParams?: RequestParams }) => {
         const { username, body, requestParams = {} } = apiParams;
 
         return api.updateUser(username, body, requestParams);
-      }) as any,
-    }) as unknown as UseMutationResult<
-      any,
-      void,
-      { username: string; body: TypeUser; requestParams?: RequestParams },
-      any
-    >;
+      },
+    });
   }
 
   /**
@@ -675,12 +634,12 @@ export const createUserApiQuery = (api: User<unknown>) => {
   ) {
     return useMutation({
       ...mutationOptions,
-      mutationFn: ((apiParams: { username: string; requestParams?: RequestParams }) => {
+      mutationFn: (apiParams: { username: string; requestParams?: RequestParams }) => {
         const { username, requestParams = {} } = apiParams;
 
         return api.deleteUser(username, requestParams);
-      }) as any,
-    }) as unknown as UseMutationResult<any, void, { username: string; requestParams?: RequestParams }, any>;
+      },
+    });
   }
 
   /**
@@ -710,7 +669,7 @@ export const createUserApiQuery = (api: User<unknown>) => {
       queryFn: () => {
         return api.loginUser(query, requestParams);
       },
-    }) as unknown as UseQueryResult<string, void>;
+    });
   }
   function createLoginUserQueryKey(apiParams: {
     query: {
@@ -744,7 +703,7 @@ export const createUserApiQuery = (api: User<unknown>) => {
       queryFn: () => {
         return api.logoutUser(requestParams);
       },
-    }) as unknown as UseQueryResult<any, void>;
+    });
   }
   function createLogoutUserQueryKey(apiParams: { requestParams?: RequestParams }) {
     const { requestParams = {} } = apiParams;
@@ -764,12 +723,12 @@ export const createUserApiQuery = (api: User<unknown>) => {
   ) {
     return useMutation({
       ...mutationOptions,
-      mutationFn: ((apiParams: { body: TypeUser; requestParams?: RequestParams }) => {
+      mutationFn: (apiParams: { body: TypeUser; requestParams?: RequestParams }) => {
         const { body, requestParams = {} } = apiParams;
 
         return api.createUser(body, requestParams);
-      }) as any,
-    }) as unknown as UseMutationResult<any, void, { body: TypeUser; requestParams?: RequestParams }, any>;
+      },
+    });
   }
 
   return {

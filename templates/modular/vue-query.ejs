@@ -216,7 +216,7 @@ type CustomMutationOptions<T, E, V> = MaybeRef<Omit<UnwrapRef<MutationOptions< <
                       queryFn: () => {
                           return api.<%= routeName.usage %>(<%~ requestParamsValueTmplStr %>)
                       }
-                  }) as unknown as UseQueryReturnType<<%~ responseType %>, <%~ response.errorType %>>
+                  })
               }
               function <%= createQueryKeyFnName %>(apiParams: <%~ queryParamsTypeTmplStr %> ) {
                   const <%~ queryParamsDestructuringTmplStr %> = apiParams
@@ -232,8 +232,8 @@ type CustomMutationOptions<T, E, V> = MaybeRef<Omit<UnwrapRef<MutationOptions< <
                         const <%~ queryParamsDestructuringTmplStr %> = apiParams
 
                         return api.<%= routeName.usage %>(<%~ requestParamsValueTmplStr %>)
-                    }) as any
-                }) as unknown as UseMutationReturnType<<%~ responseType %>, <%~ response.errorType %>, <%~ queryParamsTypeTmplStr %>, any>
+                    })
+                })
               }
             <% } %>
     <% } %>

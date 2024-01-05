@@ -211,7 +211,7 @@ type CustomMutationOptions<T, E, V> = Omit<MutationOptions< <%~ createResponseGe
                       queryFn: () => {
                           return api.<%= moduleName %>.<%= routeName.usage %>(<%~ requestParamsValueTmplStr %>)
                       }
-                  }) as unknown as UseQueryResult<<%~ responseType %>, <%~ response.errorType %>>
+                  })
               }
               function <%= createQueryKeyFnName %>(apiParams: <%~ queryParamsTypeTmplStr %> ) {
                   const <%~ queryParamsDestructuringTmplStr %> = apiParams
@@ -223,12 +223,12 @@ type CustomMutationOptions<T, E, V> = Omit<MutationOptions< <%~ createResponseGe
               ) {
                 return useMutation({
                     ...mutationOptions,
-                    mutationFn: ((apiParams: <%~ queryParamsTypeTmplStr %>) => {
+                    mutationFn: (apiParams: <%~ queryParamsTypeTmplStr %>) => {
                         const <%~ queryParamsDestructuringTmplStr %> = apiParams
 
                         return api.<%= moduleName %>.<%= routeName.usage %>(<%~ requestParamsValueTmplStr %>)
-                    }) as any
-                }) as unknown as UseMutationResult<<%~ responseType %>, <%~ response.errorType %>, <%~ queryParamsTypeTmplStr %>, any>
+                    }
+                })
               }
             <% } %>
     <% } %>

@@ -9,14 +9,7 @@
  * ---------------------------------------------------------------
  */
 
-import {
-  MutationOptions,
-  UseMutationReturnType,
-  UseQueryOptions,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/vue-query";
+import { MutationOptions, UseQueryOptions, useMutation, useQuery, useQueryClient } from "@tanstack/vue-query";
 import { MaybeRef, UnwrapRef, toValue } from "vue";
 import { RequestParams } from "./http-client";
 
@@ -65,7 +58,7 @@ export const createPetApiQuery = (api: Pet<unknown>) => {
   ) {
     return useMutation({
       ...mutationOptions,
-      mutationFn: ((apiParams: {
+      mutationFn: (apiParams: {
         petId: MaybeRef<number>;
         data: MaybeRef<{
           /** Additional data to pass to server */
@@ -78,22 +71,8 @@ export const createPetApiQuery = (api: Pet<unknown>) => {
         const { petId, data, requestParams = {} } = apiParams;
 
         return api.uploadFile(toValue(petId), toValue(data), toValue(requestParams));
-      }) as any,
-    }) as unknown as UseMutationReturnType<
-      TypeApiResponse,
-      any,
-      {
-        petId: MaybeRef<number>;
-        data: MaybeRef<{
-          /** Additional data to pass to server */
-          additionalMetadata?: string;
-          /** file to upload */
-          file?: File;
-        }>;
-        requestParams?: MaybeRef<RequestParams>;
       },
-      any
-    >;
+    });
   }
 
   /**
@@ -114,17 +93,12 @@ export const createPetApiQuery = (api: Pet<unknown>) => {
   ) {
     return useMutation({
       ...mutationOptions,
-      mutationFn: ((apiParams: { body: MaybeRef<TypePet>; requestParams?: MaybeRef<RequestParams> }) => {
+      mutationFn: (apiParams: { body: MaybeRef<TypePet>; requestParams?: MaybeRef<RequestParams> }) => {
         const { body, requestParams = {} } = apiParams;
 
         return api.addPet(toValue(body), toValue(requestParams));
-      }) as any,
-    }) as unknown as UseMutationReturnType<
-      any,
-      void,
-      { body: MaybeRef<TypePet>; requestParams?: MaybeRef<RequestParams> },
-      any
-    >;
+      },
+    });
   }
 
   /**
@@ -145,17 +119,12 @@ export const createPetApiQuery = (api: Pet<unknown>) => {
   ) {
     return useMutation({
       ...mutationOptions,
-      mutationFn: ((apiParams: { body: MaybeRef<TypePet>; requestParams?: MaybeRef<RequestParams> }) => {
+      mutationFn: (apiParams: { body: MaybeRef<TypePet>; requestParams?: MaybeRef<RequestParams> }) => {
         const { body, requestParams = {} } = apiParams;
 
         return api.updatePet(toValue(body), toValue(requestParams));
-      }) as any,
-    }) as unknown as UseMutationReturnType<
-      any,
-      void,
-      { body: MaybeRef<TypePet>; requestParams?: MaybeRef<RequestParams> },
-      any
-    >;
+      },
+    });
   }
 
   /**
@@ -291,7 +260,7 @@ export const createPetApiQuery = (api: Pet<unknown>) => {
   ) {
     return useMutation({
       ...mutationOptions,
-      mutationFn: ((apiParams: {
+      mutationFn: (apiParams: {
         petId: MaybeRef<number>;
         data: MaybeRef<{
           /** Updated name of the pet */
@@ -304,22 +273,8 @@ export const createPetApiQuery = (api: Pet<unknown>) => {
         const { petId, data, requestParams = {} } = apiParams;
 
         return api.updatePetWithForm(toValue(petId), toValue(data), toValue(requestParams));
-      }) as any,
-    }) as unknown as UseMutationReturnType<
-      any,
-      void,
-      {
-        petId: MaybeRef<number>;
-        data: MaybeRef<{
-          /** Updated name of the pet */
-          name?: string;
-          /** Updated status of the pet */
-          status?: string;
-        }>;
-        requestParams?: MaybeRef<RequestParams>;
       },
-      any
-    >;
+    });
   }
 
   /**
@@ -340,17 +295,12 @@ export const createPetApiQuery = (api: Pet<unknown>) => {
   ) {
     return useMutation({
       ...mutationOptions,
-      mutationFn: ((apiParams: { petId: MaybeRef<number>; requestParams?: MaybeRef<RequestParams> }) => {
+      mutationFn: (apiParams: { petId: MaybeRef<number>; requestParams?: MaybeRef<RequestParams> }) => {
         const { petId, requestParams = {} } = apiParams;
 
         return api.deletePet(toValue(petId), toValue(requestParams));
-      }) as any,
-    }) as unknown as UseMutationReturnType<
-      any,
-      void,
-      { petId: MaybeRef<number>; requestParams?: MaybeRef<RequestParams> },
-      any
-    >;
+      },
+    });
   }
 
   return {
@@ -489,17 +439,12 @@ export const createStoreApiQuery = (api: Store<unknown>) => {
   ) {
     return useMutation({
       ...mutationOptions,
-      mutationFn: ((apiParams: { body: MaybeRef<TypeOrder>; requestParams?: MaybeRef<RequestParams> }) => {
+      mutationFn: (apiParams: { body: MaybeRef<TypeOrder>; requestParams?: MaybeRef<RequestParams> }) => {
         const { body, requestParams = {} } = apiParams;
 
         return api.placeOrder(toValue(body), toValue(requestParams));
-      }) as any,
-    }) as unknown as UseMutationReturnType<
-      TypeOrder,
-      void,
-      { body: MaybeRef<TypeOrder>; requestParams?: MaybeRef<RequestParams> },
-      any
-    >;
+      },
+    });
   }
 
   /**
@@ -548,17 +493,12 @@ export const createStoreApiQuery = (api: Store<unknown>) => {
   ) {
     return useMutation({
       ...mutationOptions,
-      mutationFn: ((apiParams: { orderId: MaybeRef<number>; requestParams?: MaybeRef<RequestParams> }) => {
+      mutationFn: (apiParams: { orderId: MaybeRef<number>; requestParams?: MaybeRef<RequestParams> }) => {
         const { orderId, requestParams = {} } = apiParams;
 
         return api.deleteOrder(toValue(orderId), toValue(requestParams));
-      }) as any,
-    }) as unknown as UseMutationReturnType<
-      any,
-      void,
-      { orderId: MaybeRef<number>; requestParams?: MaybeRef<RequestParams> },
-      any
-    >;
+      },
+    });
   }
 
   /**
@@ -664,17 +604,12 @@ export const createUserApiQuery = (api: User<unknown>) => {
   ) {
     return useMutation({
       ...mutationOptions,
-      mutationFn: ((apiParams: { body: MaybeRef<TypeUser[]>; requestParams?: MaybeRef<RequestParams> }) => {
+      mutationFn: (apiParams: { body: MaybeRef<TypeUser[]>; requestParams?: MaybeRef<RequestParams> }) => {
         const { body, requestParams = {} } = apiParams;
 
         return api.createUsersWithArrayInput(toValue(body), toValue(requestParams));
-      }) as any,
-    }) as unknown as UseMutationReturnType<
-      any,
-      void,
-      { body: MaybeRef<TypeUser[]>; requestParams?: MaybeRef<RequestParams> },
-      any
-    >;
+      },
+    });
   }
 
   /**
@@ -694,17 +629,12 @@ export const createUserApiQuery = (api: User<unknown>) => {
   ) {
     return useMutation({
       ...mutationOptions,
-      mutationFn: ((apiParams: { body: MaybeRef<TypeUser[]>; requestParams?: MaybeRef<RequestParams> }) => {
+      mutationFn: (apiParams: { body: MaybeRef<TypeUser[]>; requestParams?: MaybeRef<RequestParams> }) => {
         const { body, requestParams = {} } = apiParams;
 
         return api.createUsersWithListInput(toValue(body), toValue(requestParams));
-      }) as any,
-    }) as unknown as UseMutationReturnType<
-      any,
-      void,
-      { body: MaybeRef<TypeUser[]>; requestParams?: MaybeRef<RequestParams> },
-      any
-    >;
+      },
+    });
   }
 
   /**
@@ -753,7 +683,7 @@ export const createUserApiQuery = (api: User<unknown>) => {
   ) {
     return useMutation({
       ...mutationOptions,
-      mutationFn: ((apiParams: {
+      mutationFn: (apiParams: {
         username: MaybeRef<string>;
         body: MaybeRef<TypeUser>;
         requestParams?: MaybeRef<RequestParams>;
@@ -761,13 +691,8 @@ export const createUserApiQuery = (api: User<unknown>) => {
         const { username, body, requestParams = {} } = apiParams;
 
         return api.updateUser(toValue(username), toValue(body), toValue(requestParams));
-      }) as any,
-    }) as unknown as UseMutationReturnType<
-      any,
-      void,
-      { username: MaybeRef<string>; body: MaybeRef<TypeUser>; requestParams?: MaybeRef<RequestParams> },
-      any
-    >;
+      },
+    });
   }
 
   /**
@@ -787,17 +712,12 @@ export const createUserApiQuery = (api: User<unknown>) => {
   ) {
     return useMutation({
       ...mutationOptions,
-      mutationFn: ((apiParams: { username: MaybeRef<string>; requestParams?: MaybeRef<RequestParams> }) => {
+      mutationFn: (apiParams: { username: MaybeRef<string>; requestParams?: MaybeRef<RequestParams> }) => {
         const { username, requestParams = {} } = apiParams;
 
         return api.deleteUser(toValue(username), toValue(requestParams));
-      }) as any,
-    }) as unknown as UseMutationReturnType<
-      any,
-      void,
-      { username: MaybeRef<string>; requestParams?: MaybeRef<RequestParams> },
-      any
-    >;
+      },
+    });
   }
 
   /**
@@ -885,17 +805,12 @@ export const createUserApiQuery = (api: User<unknown>) => {
   ) {
     return useMutation({
       ...mutationOptions,
-      mutationFn: ((apiParams: { body: MaybeRef<TypeUser>; requestParams?: MaybeRef<RequestParams> }) => {
+      mutationFn: (apiParams: { body: MaybeRef<TypeUser>; requestParams?: MaybeRef<RequestParams> }) => {
         const { body, requestParams = {} } = apiParams;
 
         return api.createUser(toValue(body), toValue(requestParams));
-      }) as any,
-    }) as unknown as UseMutationReturnType<
-      any,
-      void,
-      { body: MaybeRef<TypeUser>; requestParams?: MaybeRef<RequestParams> },
-      any
-    >;
+      },
+    });
   }
 
   return {
