@@ -86,7 +86,7 @@ function parseRouteArgs(route){
       queryParamsValueTmplStr,
       queryParamsDestructuringTmplStr,
 
-      requestParamsValueTmplStr: `${baseArgs.map(v => v.name).join(', ')}`,
+      requestParamsValueTmplStr: `${baseArgs.map(v => `toValue(${v.name})${v.optional ? '' : '!'}`).join(', ')}`,
 
     }
   }
