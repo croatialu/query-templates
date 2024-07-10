@@ -12,6 +12,8 @@ useQuery code generation template based on swagger-typescript-api and @tanstack/
 | default | ✅ | ✅ |
 | modular | ✅ | ✅ |
 
+try it now! [stackblitz](https://stackblitz.com/~/github.com/croatialu/query-templates?file=src/api/react-default.ts)
+
 ## Usage
 
 `default` template
