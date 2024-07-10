@@ -9,8 +9,9 @@
  * ---------------------------------------------------------------
  */
 
-import { MutationOptions, UseQueryOptions, useMutation, useQuery, useQueryClient } from "@tanstack/vue-query";
-import { MaybeRef, UnwrapRef, toValue } from "vue";
+import { MutationOptions, useMutation, useQuery, useQueryClient, UseQueryOptions } from "@tanstack/vue-query";
+import type { AxiosResponse } from "axios";
+import { MaybeRef, toValue, UnwrapRef } from "vue";
 import { Api, RequestParams, TypeApiResponse, TypeOrder, TypePet, TypeUser } from "./api";
 
 /**
@@ -19,8 +20,8 @@ import { Api, RequestParams, TypeApiResponse, TypeOrder, TypePet, TypeUser } fro
   This is a sample server Petstore server.  You can find out more about Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).  For this sample, you can use the api key `special-key` to test the authorization filters.
 */
 
-type CustomQueryOptions<T, E> = MaybeRef<Omit<UnwrapRef<UseQueryOptions<T>>, "queryKey" | "queryFn">>;
-type CustomMutationOptions<T, E, V> = MaybeRef<Omit<UnwrapRef<MutationOptions<T, E, V>>, "mutationFn">>;
+type CustomQueryOptions<T, E> = MaybeRef<Omit<UnwrapRef<UseQueryOptions<AxiosResponse<T, E>>>, "queryKey" | "queryFn">>;
+type CustomMutationOptions<T, E, V> = Omit<MutationOptions<AxiosResponse<T, E>, E, V>, "mutationFn">;
 
 export const createPetApiQuery = (api: Api<unknown>) => {
   /**
@@ -37,32 +38,32 @@ export const createPetApiQuery = (api: Api<unknown>) => {
       TypeApiResponse,
       any,
       {
-        petId: MaybeRef<number>;
-        data: MaybeRef<{
+        petId: number;
+        data: {
           /** Additional data to pass to server */
           additionalMetadata?: string;
           /** file to upload */
           file?: File;
-        }>;
-        requestParams?: MaybeRef<RequestParams>;
+        };
+        requestParams?: RequestParams;
       }
     > = {},
   ) {
     return useMutation({
       ...mutationOptions,
       mutationFn: (apiParams: {
-        petId: MaybeRef<number>;
-        data: MaybeRef<{
+        petId: number;
+        data: {
           /** Additional data to pass to server */
           additionalMetadata?: string;
           /** file to upload */
           file?: File;
-        }>;
-        requestParams?: MaybeRef<RequestParams>;
+        };
+        requestParams?: RequestParams;
       }) => {
         const { petId, data, requestParams = {} } = apiParams;
 
-        return api.pet.uploadFile(toValue(petId), toValue(data), toValue(requestParams));
+        return api.pet.uploadFile(petId!, data!, requestParams);
       },
     });
   }
@@ -77,18 +78,14 @@ export const createPetApiQuery = (api: Api<unknown>) => {
    * @secure
    */
   function useAddPetMutation(
-    mutationOptions: CustomMutationOptions<
-      any,
-      void,
-      { body: MaybeRef<TypePet>; requestParams?: MaybeRef<RequestParams> }
-    > = {},
+    mutationOptions: CustomMutationOptions<any, void, { body: TypePet; requestParams?: RequestParams }> = {},
   ) {
     return useMutation({
       ...mutationOptions,
-      mutationFn: (apiParams: { body: MaybeRef<TypePet>; requestParams?: MaybeRef<RequestParams> }) => {
+      mutationFn: (apiParams: { body: TypePet; requestParams?: RequestParams }) => {
         const { body, requestParams = {} } = apiParams;
 
-        return api.pet.addPet(toValue(body), toValue(requestParams));
+        return api.pet.addPet(body!, requestParams);
       },
     });
   }
@@ -103,18 +100,14 @@ export const createPetApiQuery = (api: Api<unknown>) => {
    * @secure
    */
   function useUpdatePetMutation(
-    mutationOptions: CustomMutationOptions<
-      any,
-      void,
-      { body: MaybeRef<TypePet>; requestParams?: MaybeRef<RequestParams> }
-    > = {},
+    mutationOptions: CustomMutationOptions<any, void, { body: TypePet; requestParams?: RequestParams }> = {},
   ) {
     return useMutation({
       ...mutationOptions,
-      mutationFn: (apiParams: { body: MaybeRef<TypePet>; requestParams?: MaybeRef<RequestParams> }) => {
+      mutationFn: (apiParams: { body: TypePet; requestParams?: RequestParams }) => {
         const { body, requestParams = {} } = apiParams;
 
-        return api.pet.updatePet(toValue(body), toValue(requestParams));
+        return api.pet.updatePet(body!, requestParams);
       },
     });
   }
@@ -143,7 +136,7 @@ export const createPetApiQuery = (api: Api<unknown>) => {
       ...queryOptions,
       queryKey: createFindPetsByStatusQueryKey({ query, requestParams }),
       queryFn: () => {
-        return api.pet.findPetsByStatus(toValue(query), toValue(requestParams));
+        return api.pet.findPetsByStatus(toValue(query)!, toValue(requestParams));
       },
     });
   }
@@ -183,7 +176,7 @@ export const createPetApiQuery = (api: Api<unknown>) => {
       ...queryOptions,
       queryKey: createFindPetsByTagsQueryKey({ query, requestParams }),
       queryFn: () => {
-        return api.pet.findPetsByTags(toValue(query), toValue(requestParams));
+        return api.pet.findPetsByTags(toValue(query)!, toValue(requestParams));
       },
     });
   }
@@ -216,7 +209,7 @@ export const createPetApiQuery = (api: Api<unknown>) => {
       ...queryOptions,
       queryKey: createGetPetByIdQueryKey({ petId, requestParams }),
       queryFn: () => {
-        return api.pet.getPetById(toValue(petId), toValue(requestParams));
+        return api.pet.getPetById(toValue(petId)!, toValue(requestParams));
       },
     });
   }
@@ -239,32 +232,32 @@ export const createPetApiQuery = (api: Api<unknown>) => {
       any,
       void,
       {
-        petId: MaybeRef<number>;
-        data: MaybeRef<{
+        petId: number;
+        data: {
           /** Updated name of the pet */
           name?: string;
           /** Updated status of the pet */
           status?: string;
-        }>;
-        requestParams?: MaybeRef<RequestParams>;
+        };
+        requestParams?: RequestParams;
       }
     > = {},
   ) {
     return useMutation({
       ...mutationOptions,
       mutationFn: (apiParams: {
-        petId: MaybeRef<number>;
-        data: MaybeRef<{
+        petId: number;
+        data: {
           /** Updated name of the pet */
           name?: string;
           /** Updated status of the pet */
           status?: string;
-        }>;
-        requestParams?: MaybeRef<RequestParams>;
+        };
+        requestParams?: RequestParams;
       }) => {
         const { petId, data, requestParams = {} } = apiParams;
 
-        return api.pet.updatePetWithForm(toValue(petId), toValue(data), toValue(requestParams));
+        return api.pet.updatePetWithForm(petId!, data!, requestParams);
       },
     });
   }
@@ -279,18 +272,14 @@ export const createPetApiQuery = (api: Api<unknown>) => {
    * @secure
    */
   function useDeletePetMutation(
-    mutationOptions: CustomMutationOptions<
-      any,
-      void,
-      { petId: MaybeRef<number>; requestParams?: MaybeRef<RequestParams> }
-    > = {},
+    mutationOptions: CustomMutationOptions<any, void, { petId: number; requestParams?: RequestParams }> = {},
   ) {
     return useMutation({
       ...mutationOptions,
-      mutationFn: (apiParams: { petId: MaybeRef<number>; requestParams?: MaybeRef<RequestParams> }) => {
+      mutationFn: (apiParams: { petId: number; requestParams?: RequestParams }) => {
         const { petId, requestParams = {} } = apiParams;
 
-        return api.pet.deletePet(toValue(petId), toValue(requestParams));
+        return api.pet.deletePet(petId!, requestParams);
       },
     });
   }
@@ -329,16 +318,16 @@ export function usePetApiQueryUpdate() {
       }>,
       MaybeRef<RequestParams>,
     ],
-    updater: (data: TypeApiResponse) => TypeApiResponse,
-  ): Promise<TypeApiResponse>;
+    updater: (data: AxiosResponse<TypeApiResponse, any>) => AxiosResponse<TypeApiResponse, any>,
+  ): Promise<AxiosResponse<TypeApiResponse, any>>;
   function setQueryData(
     queryKey: readonly ["swagger-typescript-api", "pet", "post", "/pet", MaybeRef<TypePet>, MaybeRef<RequestParams>],
-    updater: (data: any) => any,
-  ): Promise<any>;
+    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
+  ): Promise<AxiosResponse<any, void>>;
   function setQueryData(
     queryKey: readonly ["swagger-typescript-api", "pet", "put", "/pet", MaybeRef<TypePet>, MaybeRef<RequestParams>],
-    updater: (data: any) => any,
-  ): Promise<any>;
+    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
+  ): Promise<AxiosResponse<any, void>>;
   function setQueryData(
     queryKey: readonly [
       "swagger-typescript-api",
@@ -351,8 +340,8 @@ export function usePetApiQueryUpdate() {
       }>,
       MaybeRef<RequestParams>,
     ],
-    updater: (data: TypePet[]) => TypePet[],
-  ): Promise<TypePet[]>;
+    updater: (data: AxiosResponse<TypePet[], void>) => AxiosResponse<TypePet[], void>,
+  ): Promise<AxiosResponse<TypePet[], void>>;
   function setQueryData(
     queryKey: readonly [
       "swagger-typescript-api",
@@ -365,8 +354,8 @@ export function usePetApiQueryUpdate() {
       }>,
       MaybeRef<RequestParams>,
     ],
-    updater: (data: TypePet[]) => TypePet[],
-  ): Promise<TypePet[]>;
+    updater: (data: AxiosResponse<TypePet[], void>) => AxiosResponse<TypePet[], void>,
+  ): Promise<AxiosResponse<TypePet[], void>>;
   function setQueryData(
     queryKey: readonly [
       "swagger-typescript-api",
@@ -376,8 +365,8 @@ export function usePetApiQueryUpdate() {
       MaybeRef<number>,
       MaybeRef<RequestParams>,
     ],
-    updater: (data: TypePet) => TypePet,
-  ): Promise<TypePet>;
+    updater: (data: AxiosResponse<TypePet, void>) => AxiosResponse<TypePet, void>,
+  ): Promise<AxiosResponse<TypePet, void>>;
   function setQueryData(
     queryKey: readonly [
       "swagger-typescript-api",
@@ -393,8 +382,8 @@ export function usePetApiQueryUpdate() {
       }>,
       MaybeRef<RequestParams>,
     ],
-    updater: (data: any) => any,
-  ): Promise<any>;
+    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
+  ): Promise<AxiosResponse<any, void>>;
   function setQueryData(
     queryKey: readonly [
       "swagger-typescript-api",
@@ -404,8 +393,8 @@ export function usePetApiQueryUpdate() {
       MaybeRef<number>,
       MaybeRef<RequestParams>,
     ],
-    updater: (data: any) => any,
-  ): Promise<any>;
+    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
+  ): Promise<AxiosResponse<any, void>>;
   function setQueryData(queryKey: any, updater: any) {
     return queryClient.setQueryData(queryKey, updater);
   }
@@ -423,18 +412,14 @@ export const createStoreApiQuery = (api: Api<unknown>) => {
    * @request POST:/store/order
    */
   function usePlaceOrderMutation(
-    mutationOptions: CustomMutationOptions<
-      TypeOrder,
-      void,
-      { body: MaybeRef<TypeOrder>; requestParams?: MaybeRef<RequestParams> }
-    > = {},
+    mutationOptions: CustomMutationOptions<TypeOrder, void, { body: TypeOrder; requestParams?: RequestParams }> = {},
   ) {
     return useMutation({
       ...mutationOptions,
-      mutationFn: (apiParams: { body: MaybeRef<TypeOrder>; requestParams?: MaybeRef<RequestParams> }) => {
+      mutationFn: (apiParams: { body: TypeOrder; requestParams?: RequestParams }) => {
         const { body, requestParams = {} } = apiParams;
 
-        return api.store.placeOrder(toValue(body), toValue(requestParams));
+        return api.store.placeOrder(body!, requestParams);
       },
     });
   }
@@ -456,7 +441,7 @@ export const createStoreApiQuery = (api: Api<unknown>) => {
       ...queryOptions,
       queryKey: createGetOrderByIdQueryKey({ orderId, requestParams }),
       queryFn: () => {
-        return api.store.getOrderById(toValue(orderId), toValue(requestParams));
+        return api.store.getOrderById(toValue(orderId)!, toValue(requestParams));
       },
     });
   }
@@ -477,18 +462,14 @@ export const createStoreApiQuery = (api: Api<unknown>) => {
    * @request DELETE:/store/order/{orderId}
    */
   function useDeleteOrderMutation(
-    mutationOptions: CustomMutationOptions<
-      any,
-      void,
-      { orderId: MaybeRef<number>; requestParams?: MaybeRef<RequestParams> }
-    > = {},
+    mutationOptions: CustomMutationOptions<any, void, { orderId: number; requestParams?: RequestParams }> = {},
   ) {
     return useMutation({
       ...mutationOptions,
-      mutationFn: (apiParams: { orderId: MaybeRef<number>; requestParams?: MaybeRef<RequestParams> }) => {
+      mutationFn: (apiParams: { orderId: number; requestParams?: RequestParams }) => {
         const { orderId, requestParams = {} } = apiParams;
 
-        return api.store.deleteOrder(toValue(orderId), toValue(requestParams));
+        return api.store.deleteOrder(orderId!, requestParams);
       },
     });
   }
@@ -543,8 +524,8 @@ export function useStoreApiQueryUpdate() {
       MaybeRef<TypeOrder>,
       MaybeRef<RequestParams>,
     ],
-    updater: (data: TypeOrder) => TypeOrder,
-  ): Promise<TypeOrder>;
+    updater: (data: AxiosResponse<TypeOrder, void>) => AxiosResponse<TypeOrder, void>,
+  ): Promise<AxiosResponse<TypeOrder, void>>;
   function setQueryData(
     queryKey: readonly [
       "swagger-typescript-api",
@@ -554,8 +535,8 @@ export function useStoreApiQueryUpdate() {
       MaybeRef<number>,
       MaybeRef<RequestParams>,
     ],
-    updater: (data: TypeOrder) => TypeOrder,
-  ): Promise<TypeOrder>;
+    updater: (data: AxiosResponse<TypeOrder, void>) => AxiosResponse<TypeOrder, void>,
+  ): Promise<AxiosResponse<TypeOrder, void>>;
   function setQueryData(
     queryKey: readonly [
       "swagger-typescript-api",
@@ -565,12 +546,12 @@ export function useStoreApiQueryUpdate() {
       MaybeRef<number>,
       MaybeRef<RequestParams>,
     ],
-    updater: (data: any) => any,
-  ): Promise<any>;
+    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
+  ): Promise<AxiosResponse<any, void>>;
   function setQueryData(
     queryKey: readonly ["swagger-typescript-api", "store", "get", "/store/inventory", MaybeRef<RequestParams>],
-    updater: (data: Record<string, number>) => Record<string, number>,
-  ): Promise<Record<string, number>>;
+    updater: (data: AxiosResponse<Record<string, number>, any>) => AxiosResponse<Record<string, number>, any>,
+  ): Promise<AxiosResponse<Record<string, number>, any>>;
   function setQueryData(queryKey: any, updater: any) {
     return queryClient.setQueryData(queryKey, updater);
   }
@@ -588,18 +569,14 @@ export const createUserApiQuery = (api: Api<unknown>) => {
    * @request POST:/user/createWithArray
    */
   function useCreateUsersWithArrayInputMutation(
-    mutationOptions: CustomMutationOptions<
-      any,
-      void,
-      { body: MaybeRef<TypeUser[]>; requestParams?: MaybeRef<RequestParams> }
-    > = {},
+    mutationOptions: CustomMutationOptions<any, void, { body: TypeUser[]; requestParams?: RequestParams }> = {},
   ) {
     return useMutation({
       ...mutationOptions,
-      mutationFn: (apiParams: { body: MaybeRef<TypeUser[]>; requestParams?: MaybeRef<RequestParams> }) => {
+      mutationFn: (apiParams: { body: TypeUser[]; requestParams?: RequestParams }) => {
         const { body, requestParams = {} } = apiParams;
 
-        return api.user.createUsersWithArrayInput(toValue(body), toValue(requestParams));
+        return api.user.createUsersWithArrayInput(body!, requestParams);
       },
     });
   }
@@ -613,18 +590,14 @@ export const createUserApiQuery = (api: Api<unknown>) => {
    * @request POST:/user/createWithList
    */
   function useCreateUsersWithListInputMutation(
-    mutationOptions: CustomMutationOptions<
-      any,
-      void,
-      { body: MaybeRef<TypeUser[]>; requestParams?: MaybeRef<RequestParams> }
-    > = {},
+    mutationOptions: CustomMutationOptions<any, void, { body: TypeUser[]; requestParams?: RequestParams }> = {},
   ) {
     return useMutation({
       ...mutationOptions,
-      mutationFn: (apiParams: { body: MaybeRef<TypeUser[]>; requestParams?: MaybeRef<RequestParams> }) => {
+      mutationFn: (apiParams: { body: TypeUser[]; requestParams?: RequestParams }) => {
         const { body, requestParams = {} } = apiParams;
 
-        return api.user.createUsersWithListInput(toValue(body), toValue(requestParams));
+        return api.user.createUsersWithListInput(body!, requestParams);
       },
     });
   }
@@ -646,7 +619,7 @@ export const createUserApiQuery = (api: Api<unknown>) => {
       ...queryOptions,
       queryKey: createGetUserByNameQueryKey({ username, requestParams }),
       queryFn: () => {
-        return api.user.getUserByName(toValue(username), toValue(requestParams));
+        return api.user.getUserByName(toValue(username)!, toValue(requestParams));
       },
     });
   }
@@ -670,19 +643,15 @@ export const createUserApiQuery = (api: Api<unknown>) => {
     mutationOptions: CustomMutationOptions<
       any,
       void,
-      { username: MaybeRef<string>; body: MaybeRef<TypeUser>; requestParams?: MaybeRef<RequestParams> }
+      { username: string; body: TypeUser; requestParams?: RequestParams }
     > = {},
   ) {
     return useMutation({
       ...mutationOptions,
-      mutationFn: (apiParams: {
-        username: MaybeRef<string>;
-        body: MaybeRef<TypeUser>;
-        requestParams?: MaybeRef<RequestParams>;
-      }) => {
+      mutationFn: (apiParams: { username: string; body: TypeUser; requestParams?: RequestParams }) => {
         const { username, body, requestParams = {} } = apiParams;
 
-        return api.user.updateUser(toValue(username), toValue(body), toValue(requestParams));
+        return api.user.updateUser(username!, body!, requestParams);
       },
     });
   }
@@ -696,18 +665,14 @@ export const createUserApiQuery = (api: Api<unknown>) => {
    * @request DELETE:/user/{username}
    */
   function useDeleteUserMutation(
-    mutationOptions: CustomMutationOptions<
-      any,
-      void,
-      { username: MaybeRef<string>; requestParams?: MaybeRef<RequestParams> }
-    > = {},
+    mutationOptions: CustomMutationOptions<any, void, { username: string; requestParams?: RequestParams }> = {},
   ) {
     return useMutation({
       ...mutationOptions,
-      mutationFn: (apiParams: { username: MaybeRef<string>; requestParams?: MaybeRef<RequestParams> }) => {
+      mutationFn: (apiParams: { username: string; requestParams?: RequestParams }) => {
         const { username, requestParams = {} } = apiParams;
 
-        return api.user.deleteUser(toValue(username), toValue(requestParams));
+        return api.user.deleteUser(username!, requestParams);
       },
     });
   }
@@ -737,7 +702,7 @@ export const createUserApiQuery = (api: Api<unknown>) => {
       ...queryOptions,
       queryKey: createLoginUserQueryKey({ query, requestParams }),
       queryFn: () => {
-        return api.user.loginUser(toValue(query), toValue(requestParams));
+        return api.user.loginUser(toValue(query)!, toValue(requestParams));
       },
     });
   }
@@ -789,18 +754,14 @@ export const createUserApiQuery = (api: Api<unknown>) => {
    * @request POST:/user
    */
   function useCreateUserMutation(
-    mutationOptions: CustomMutationOptions<
-      any,
-      void,
-      { body: MaybeRef<TypeUser>; requestParams?: MaybeRef<RequestParams> }
-    > = {},
+    mutationOptions: CustomMutationOptions<any, void, { body: TypeUser; requestParams?: RequestParams }> = {},
   ) {
     return useMutation({
       ...mutationOptions,
-      mutationFn: (apiParams: { body: MaybeRef<TypeUser>; requestParams?: MaybeRef<RequestParams> }) => {
+      mutationFn: (apiParams: { body: TypeUser; requestParams?: RequestParams }) => {
         const { body, requestParams = {} } = apiParams;
 
-        return api.user.createUser(toValue(body), toValue(requestParams));
+        return api.user.createUser(body!, requestParams);
       },
     });
   }
@@ -833,8 +794,8 @@ export function useUserApiQueryUpdate() {
       MaybeRef<TypeUser[]>,
       MaybeRef<RequestParams>,
     ],
-    updater: (data: any) => any,
-  ): Promise<any>;
+    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
+  ): Promise<AxiosResponse<any, void>>;
   function setQueryData(
     queryKey: readonly [
       "swagger-typescript-api",
@@ -844,8 +805,8 @@ export function useUserApiQueryUpdate() {
       MaybeRef<TypeUser[]>,
       MaybeRef<RequestParams>,
     ],
-    updater: (data: any) => any,
-  ): Promise<any>;
+    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
+  ): Promise<AxiosResponse<any, void>>;
   function setQueryData(
     queryKey: readonly [
       "swagger-typescript-api",
@@ -855,8 +816,8 @@ export function useUserApiQueryUpdate() {
       MaybeRef<string>,
       MaybeRef<RequestParams>,
     ],
-    updater: (data: TypeUser) => TypeUser,
-  ): Promise<TypeUser>;
+    updater: (data: AxiosResponse<TypeUser, void>) => AxiosResponse<TypeUser, void>,
+  ): Promise<AxiosResponse<TypeUser, void>>;
   function setQueryData(
     queryKey: readonly [
       "swagger-typescript-api",
@@ -867,8 +828,8 @@ export function useUserApiQueryUpdate() {
       MaybeRef<TypeUser>,
       MaybeRef<RequestParams>,
     ],
-    updater: (data: any) => any,
-  ): Promise<any>;
+    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
+  ): Promise<AxiosResponse<any, void>>;
   function setQueryData(
     queryKey: readonly [
       "swagger-typescript-api",
@@ -878,8 +839,8 @@ export function useUserApiQueryUpdate() {
       MaybeRef<string>,
       MaybeRef<RequestParams>,
     ],
-    updater: (data: any) => any,
-  ): Promise<any>;
+    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
+  ): Promise<AxiosResponse<any, void>>;
   function setQueryData(
     queryKey: readonly [
       "swagger-typescript-api",
@@ -894,16 +855,16 @@ export function useUserApiQueryUpdate() {
       }>,
       MaybeRef<RequestParams>,
     ],
-    updater: (data: string) => string,
-  ): Promise<string>;
+    updater: (data: AxiosResponse<string, void>) => AxiosResponse<string, void>,
+  ): Promise<AxiosResponse<string, void>>;
   function setQueryData(
     queryKey: readonly ["swagger-typescript-api", "user", "get", "/user/logout", MaybeRef<RequestParams>],
-    updater: (data: any) => any,
-  ): Promise<any>;
+    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
+  ): Promise<AxiosResponse<any, void>>;
   function setQueryData(
     queryKey: readonly ["swagger-typescript-api", "user", "post", "/user", MaybeRef<TypeUser>, MaybeRef<RequestParams>],
-    updater: (data: any) => any,
-  ): Promise<any>;
+    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
+  ): Promise<AxiosResponse<any, void>>;
   function setQueryData(queryKey: any, updater: any) {
     return queryClient.setQueryData(queryKey, updater);
   }

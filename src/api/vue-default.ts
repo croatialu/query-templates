@@ -31,7 +31,7 @@ petQueryUpdate(
 const mutation = apiQuery.store.usePlaceOrderMutation(
   {
     onSuccess(_data, { body: _body }) {
-      //                ^? MaybeRef<TypeOrder>
+      //                ^? TypeOrder
       //        ^? AxiosResponse<TypeOrder>
     },
   },
@@ -39,5 +39,5 @@ const mutation = apiQuery.store.usePlaceOrderMutation(
 
 mutation.mutateAsync({
   body: {},
-  // ^? MaybeRef<TypeOrder>
+  // ^? TypeOrder
 })

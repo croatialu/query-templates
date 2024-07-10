@@ -34,7 +34,7 @@ const storeQuery = createStoreApiQuery(storeApi)
 const mutation = storeQuery.usePlaceOrderMutation(
   {
     onSuccess(_data, { body: _body }) {
-      //                ^? MaybeRef<TypeOrder>
+      //                ^? TypeOrder
       //        ^? AxiosResponse<TypeOrder>
     },
   },
@@ -42,5 +42,5 @@ const mutation = storeQuery.usePlaceOrderMutation(
 
 mutation.mutateAsync({
   body: {},
-  // ^? MaybeRef<TypeOrder>
+  // ^? TypeOrder
 })

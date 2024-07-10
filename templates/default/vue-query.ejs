@@ -77,6 +77,9 @@ function parseRouteArgs(route){
   const queryParamsValueTmplStr = `{ ${baseArgs.map(v => v.name).join(', ')} }`
   const queryParamsDestructuringTmplStr = `{ ${baseArgs.map(({ name, defaultValue,  }) => `${name}${defaultValue ? ` = ${defaultValue}` : ''}`).join(', ')} }`
 
+  const mutationParamsTypeTmplStr = `{ ${baseArgs.map(({ name, optional, type }) => `${name}${optional ? '?' : ''}: ${type}`).join(', ')} }`
+  const mutationParamsValueTmplStr = `${baseArgs.map(v => `${v.name}${v.optional ? '' : '!'}`).join(', ')}`
+
   if(QUERY_TYPE === 'vue') {
 
 
@@ -85,20 +88,24 @@ function parseRouteArgs(route){
 
       queryParamsTypeTmplStr: `{ ${baseArgs.map(({ name, optional, type }) => `${name}${optional ? '?' : ''}: MaybeRef<${type}>`).join(', ')} }`,
       queryParamsValueTmplStr,
+      mutationParamsTypeTmplStr,
+      mutationParamsValueTmplStr,
       queryParamsDestructuringTmplStr,
 
-      requestParamsValueTmplStr: `${baseArgs.map(v => `toValue(${v.name})${v.optional ? '' : '!'}`).join(', ')}`,
-
+      apiQueryParamsValueTmplStr: `${baseArgs.map(v => `toValue(${v.name})${v.optional ? '' : '!'}`).join(', ')}`,
     }
   }
 
   return {
     baseArgs,
 
-    queryParamsTypeTmplStr: `{ ${baseArgs.map(({ name, optional, type }) => `${name}${optional ? '?' : ''}: ${type}`).join(', ')} }`,
+    queryParamsTypeTmplStr: mutationParamsTypeTmplStr,
     queryParamsValueTmplStr,
+    mutationParamsTypeTmplStr,
+    mutationParamsValueTmplStr,
     queryParamsDestructuringTmplStr,
-    requestParamsValueTmplStr: `${baseArgs.map(v => `${v.name}`).join(', ')}`,
+
+    apiQueryParamsValueTmplStr: `${baseArgs.map(v => `${v.name}`).join(', ')}`,
   }
 }
 
@@ -134,7 +141,7 @@ import {
 */
 
 type CustomQueryOptions<T, E> = MaybeRef<Omit<UnwrapRef<UseQueryOptions< <%~ createResponseGeneric('T', 'E') %> >>, 'queryKey' | 'queryFn'>>
-type CustomMutationOptions<T, E, V> = MaybeRef<Omit<UnwrapRef<MutationOptions< <%~ createResponseGeneric('T', 'E') %>, E, V >>, 'mutationFn'>>
+type CustomMutationOptions<T, E, V> = Omit<MutationOptions< <%~ createResponseGeneric('T', 'E') %>, E, V >, 'mutationFn'>
 
 <% for (const combined of combinedArr) { %>
   <% 
@@ -179,14 +186,18 @@ type CustomMutationOptions<T, E, V> = MaybeRef<Omit<UnwrapRef<MutationOptions< <
 
           queryParamsTypeTmplStr,
           queryParamsValueTmplStr,
+
+          mutationParamsTypeTmplStr,
+          mutationParamsValueTmplStr,
+
           queryParamsDestructuringTmplStr,
-          requestParamsValueTmplStr,
+          apiQueryParamsValueTmplStr,
         } = parseRouteArgs(route)
         const routeDocs = includeFile("@base/route-docs", { config, route, utils });  
         
         const queryOptionTypeName = `CustomQueryOptions<${response.type}, ${response.errorType}>`
 
-        const mutationOptionTypeName = `CustomMutationOptions<${response.type}, ${response.errorType}, ${queryParamsTypeTmplStr}>`
+        const mutationOptionTypeName = `CustomMutationOptions<${response.type}, ${response.errorType}, ${mutationParamsTypeTmplStr}>`
 
         const queryKeyValueTmplStr = createQueryKeyTmplStr(moduleName, request, baseArgs.map(v => v.name))
         const responseType = createResponseType(route)
@@ -210,7 +221,7 @@ type CustomMutationOptions<T, E, V> = MaybeRef<Omit<UnwrapRef<MutationOptions< <
                       ...queryOptions,
                       queryKey: <%= createQueryKeyFnName %>(<%~ queryParamsValueTmplStr %>),
                       queryFn: () => {
-                          return api.<%= moduleName %>.<%= routeName.usage %>(<%~ requestParamsValueTmplStr %>)
+                          return api.<%= moduleName %>.<%= routeName.usage %>(<%~ apiQueryParamsValueTmplStr %>)
                       }
                   })
               }
@@ -224,10 +235,10 @@ type CustomMutationOptions<T, E, V> = MaybeRef<Omit<UnwrapRef<MutationOptions< <
               ) {
                 return useMutation({
                     ...mutationOptions,
-                    mutationFn: (apiParams: <%~ queryParamsTypeTmplStr %>) => {
+                    mutationFn: (apiParams: <%~ mutationParamsTypeTmplStr %>) => {
                         const <%~ queryParamsDestructuringTmplStr %> = apiParams
 
-                        return api.<%= moduleName %>.<%= routeName.usage %>(<%~ requestParamsValueTmplStr %>)
+                        return api.<%= moduleName %>.<%= routeName.usage %>(<%~ mutationParamsValueTmplStr %>)
                     }
                 })
               }

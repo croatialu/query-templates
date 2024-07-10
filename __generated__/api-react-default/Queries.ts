@@ -9,7 +9,8 @@
  * ---------------------------------------------------------------
  */
 
-import { MutationOptions, UseQueryOptions, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { MutationOptions, useMutation, useQuery, useQueryClient, UseQueryOptions } from "@tanstack/react-query";
+import type { AxiosResponse } from "axios";
 import { Api, RequestParams, TypeApiResponse, TypeOrder, TypePet, TypeUser } from "./api";
 
 /**
@@ -18,8 +19,8 @@ import { Api, RequestParams, TypeApiResponse, TypeOrder, TypePet, TypeUser } fro
   This is a sample server Petstore server.  You can find out more about Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).  For this sample, you can use the api key `special-key` to test the authorization filters.
 */
 
-type CustomQueryOptions<T, E> = Omit<UseQueryOptions<T>, "queryKey" | "queryFn">;
-type CustomMutationOptions<T, E, V> = Omit<MutationOptions<T, E, V>, "mutationFn">;
+type CustomQueryOptions<T, E> = Omit<UseQueryOptions<AxiosResponse<T, E>>, "queryKey" | "queryFn">;
+type CustomMutationOptions<T, E, V> = Omit<MutationOptions<AxiosResponse<T, E>, E, V>, "mutationFn">;
 
 export const createPetApiQuery = (api: Api<unknown>) => {
   /**
@@ -316,16 +317,16 @@ export function usePetApiQueryUpdate() {
       },
       RequestParams,
     ],
-    updater: (data: TypeApiResponse) => TypeApiResponse,
-  ): Promise<TypeApiResponse>;
+    updater: (data: AxiosResponse<TypeApiResponse, any>) => AxiosResponse<TypeApiResponse, any>,
+  ): Promise<AxiosResponse<TypeApiResponse, any>>;
   function setQueryData(
     queryKey: readonly ["swagger-typescript-api", "pet", "post", "/pet", TypePet, RequestParams],
-    updater: (data: any) => any,
-  ): Promise<any>;
+    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
+  ): Promise<AxiosResponse<any, void>>;
   function setQueryData(
     queryKey: readonly ["swagger-typescript-api", "pet", "put", "/pet", TypePet, RequestParams],
-    updater: (data: any) => any,
-  ): Promise<any>;
+    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
+  ): Promise<AxiosResponse<any, void>>;
   function setQueryData(
     queryKey: readonly [
       "swagger-typescript-api",
@@ -338,8 +339,8 @@ export function usePetApiQueryUpdate() {
       },
       RequestParams,
     ],
-    updater: (data: TypePet[]) => TypePet[],
-  ): Promise<TypePet[]>;
+    updater: (data: AxiosResponse<TypePet[], void>) => AxiosResponse<TypePet[], void>,
+  ): Promise<AxiosResponse<TypePet[], void>>;
   function setQueryData(
     queryKey: readonly [
       "swagger-typescript-api",
@@ -352,12 +353,12 @@ export function usePetApiQueryUpdate() {
       },
       RequestParams,
     ],
-    updater: (data: TypePet[]) => TypePet[],
-  ): Promise<TypePet[]>;
+    updater: (data: AxiosResponse<TypePet[], void>) => AxiosResponse<TypePet[], void>,
+  ): Promise<AxiosResponse<TypePet[], void>>;
   function setQueryData(
     queryKey: readonly ["swagger-typescript-api", "pet", "get", "/pet/${petId}", number, RequestParams],
-    updater: (data: TypePet) => TypePet,
-  ): Promise<TypePet>;
+    updater: (data: AxiosResponse<TypePet, void>) => AxiosResponse<TypePet, void>,
+  ): Promise<AxiosResponse<TypePet, void>>;
   function setQueryData(
     queryKey: readonly [
       "swagger-typescript-api",
@@ -373,12 +374,12 @@ export function usePetApiQueryUpdate() {
       },
       RequestParams,
     ],
-    updater: (data: any) => any,
-  ): Promise<any>;
+    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
+  ): Promise<AxiosResponse<any, void>>;
   function setQueryData(
     queryKey: readonly ["swagger-typescript-api", "pet", "delete", "/pet/${petId}", number, RequestParams],
-    updater: (data: any) => any,
-  ): Promise<any>;
+    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
+  ): Promise<AxiosResponse<any, void>>;
   function setQueryData(queryKey: any, updater: any) {
     return queryClient.setQueryData(queryKey, updater);
   }
@@ -498,20 +499,20 @@ export function useStoreApiQueryUpdate() {
 
   function setQueryData(
     queryKey: readonly ["swagger-typescript-api", "store", "post", "/store/order", TypeOrder, RequestParams],
-    updater: (data: TypeOrder) => TypeOrder,
-  ): Promise<TypeOrder>;
+    updater: (data: AxiosResponse<TypeOrder, void>) => AxiosResponse<TypeOrder, void>,
+  ): Promise<AxiosResponse<TypeOrder, void>>;
   function setQueryData(
     queryKey: readonly ["swagger-typescript-api", "store", "get", "/store/order/${orderId}", number, RequestParams],
-    updater: (data: TypeOrder) => TypeOrder,
-  ): Promise<TypeOrder>;
+    updater: (data: AxiosResponse<TypeOrder, void>) => AxiosResponse<TypeOrder, void>,
+  ): Promise<AxiosResponse<TypeOrder, void>>;
   function setQueryData(
     queryKey: readonly ["swagger-typescript-api", "store", "delete", "/store/order/${orderId}", number, RequestParams],
-    updater: (data: any) => any,
-  ): Promise<any>;
+    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
+  ): Promise<AxiosResponse<any, void>>;
   function setQueryData(
     queryKey: readonly ["swagger-typescript-api", "store", "get", "/store/inventory", RequestParams],
-    updater: (data: Record<string, number>) => Record<string, number>,
-  ): Promise<Record<string, number>>;
+    updater: (data: AxiosResponse<Record<string, number>, any>) => AxiosResponse<Record<string, number>, any>,
+  ): Promise<AxiosResponse<Record<string, number>, any>>;
   function setQueryData(queryKey: any, updater: any) {
     return queryClient.setQueryData(queryKey, updater);
   }
@@ -744,24 +745,24 @@ export function useUserApiQueryUpdate() {
 
   function setQueryData(
     queryKey: readonly ["swagger-typescript-api", "user", "post", "/user/createWithArray", TypeUser[], RequestParams],
-    updater: (data: any) => any,
-  ): Promise<any>;
+    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
+  ): Promise<AxiosResponse<any, void>>;
   function setQueryData(
     queryKey: readonly ["swagger-typescript-api", "user", "post", "/user/createWithList", TypeUser[], RequestParams],
-    updater: (data: any) => any,
-  ): Promise<any>;
+    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
+  ): Promise<AxiosResponse<any, void>>;
   function setQueryData(
     queryKey: readonly ["swagger-typescript-api", "user", "get", "/user/${username}", string, RequestParams],
-    updater: (data: TypeUser) => TypeUser,
-  ): Promise<TypeUser>;
+    updater: (data: AxiosResponse<TypeUser, void>) => AxiosResponse<TypeUser, void>,
+  ): Promise<AxiosResponse<TypeUser, void>>;
   function setQueryData(
     queryKey: readonly ["swagger-typescript-api", "user", "put", "/user/${username}", string, TypeUser, RequestParams],
-    updater: (data: any) => any,
-  ): Promise<any>;
+    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
+  ): Promise<AxiosResponse<any, void>>;
   function setQueryData(
     queryKey: readonly ["swagger-typescript-api", "user", "delete", "/user/${username}", string, RequestParams],
-    updater: (data: any) => any,
-  ): Promise<any>;
+    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
+  ): Promise<AxiosResponse<any, void>>;
   function setQueryData(
     queryKey: readonly [
       "swagger-typescript-api",
@@ -776,16 +777,16 @@ export function useUserApiQueryUpdate() {
       },
       RequestParams,
     ],
-    updater: (data: string) => string,
-  ): Promise<string>;
+    updater: (data: AxiosResponse<string, void>) => AxiosResponse<string, void>,
+  ): Promise<AxiosResponse<string, void>>;
   function setQueryData(
     queryKey: readonly ["swagger-typescript-api", "user", "get", "/user/logout", RequestParams],
-    updater: (data: any) => any,
-  ): Promise<any>;
+    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
+  ): Promise<AxiosResponse<any, void>>;
   function setQueryData(
     queryKey: readonly ["swagger-typescript-api", "user", "post", "/user", TypeUser, RequestParams],
-    updater: (data: any) => any,
-  ): Promise<any>;
+    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
+  ): Promise<AxiosResponse<any, void>>;
   function setQueryData(queryKey: any, updater: any) {
     return queryClient.setQueryData(queryKey, updater);
   }
