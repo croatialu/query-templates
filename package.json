@@ -2,7 +2,7 @@
   "name": "query-templates",
   "type": "module",
   "version": "0.0.0",
-  "packageManager": "pnpm@9.5.0",
+  "packageManager": "pnpm@9.6.0",
   "description": "_description_",
   "author": "Croatia Lu <wuli.croatia@foxmail.com>",
   "license": "MIT",
@@ -49,29 +49,29 @@
     "prepare": "simple-git-hooks"
   },
   "dependencies": {
-    "@tanstack/vue-query": "^5.51.0",
+    "@tanstack/vue-query": "^5.51.15",
     "axios": "^1.7.2",
-    "swagger-typescript-api": "^13.0.12",
-    "vue": "^3.4.31"
+    "swagger-typescript-api": "^13.0.14",
+    "vue": "^3.4.34"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^2.22.0",
-    "@antfu/ni": "^0.21.12",
+    "@antfu/eslint-config": "^2.24.0",
+    "@antfu/ni": "^0.22.0",
     "@antfu/utils": "^0.7.10",
-    "@tanstack/react-query": "^5.50.1",
-    "@types/node": "^20.14.10",
+    "@tanstack/react-query": "^5.51.15",
+    "@types/node": "^20.14.13",
     "bumpp": "^9.4.1",
-    "eslint": "^9.6.0",
+    "eslint": "^9.8.0",
     "esno": "^4.7.0",
     "lint-staged": "^15.2.7",
-    "pnpm": "^9.5.0",
-    "rimraf": "^6.0.0",
+    "pnpm": "^9.6.0",
+    "rimraf": "^6.0.1",
     "simple-git-hooks": "^2.11.1",
-    "taze": "^0.14.2",
-    "typescript": "^5.5.3",
+    "taze": "^0.16.3",
+    "typescript": "^5.5.4",
     "unbuild": "^2.0.0",
-    "vite": "^5.3.3",
-    "vitest": "^2.0.1"
+    "vite": "^5.3.5",
+    "vitest": "^2.0.4"
   },
   "simple-git-hooks": {
     "pre-commit": "pnpm lint-staged"

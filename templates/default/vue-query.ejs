@@ -120,7 +120,7 @@ const createQueryKeyTmplStr = (namespace, request, requestArgNames) => {
 }
 
 %>
-import { useQuery, UseQueryReturnType, useQueryClient, UseQueryOptions, MutationOptions, useMutation, UseMutationReturnType } from '@tanstack/vue-query'
+import { useQuery, UseQueryReturnType, useQueryClient, UseQueryOptions, MutationOptions, useMutation, UseMutationReturnType, QueryKey } from '@tanstack/vue-query'
 import { MaybeRef, toValue, UnwrapRef } from 'vue'
 <% if (isAxiosHttpClient) { %> import type { AxiosRequestConfig, AxiosResponse } from "axios"; <% } %>
 
@@ -219,7 +219,7 @@ type CustomMutationOptions<T, E, V> = Omit<MutationOptions< <%~ createResponseGe
                   const <%~ queryParamsDestructuringTmplStr %> = apiParams
                   return useQuery({
                       ...queryOptions,
-                      queryKey: <%= createQueryKeyFnName %>(<%~ queryParamsValueTmplStr %>),
+                      queryKey: <%= createQueryKeyFnName %>(<%~ queryParamsValueTmplStr %>) as QueryKey,
                       queryFn: () => {
                           return api.<%= moduleName %>.<%= routeName.usage %>(<%~ apiQueryParamsValueTmplStr %>)
                       }

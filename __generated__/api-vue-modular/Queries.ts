@@ -9,7 +9,7 @@
  * ---------------------------------------------------------------
  */
 
-import { MutationOptions, useMutation, useQuery, useQueryClient, UseQueryOptions } from "@tanstack/vue-query";
+import { MutationOptions, QueryKey, useMutation, useQuery, useQueryClient, UseQueryOptions } from "@tanstack/vue-query";
 import type { AxiosResponse } from "axios";
 import { MaybeRef, toValue, UnwrapRef } from "vue";
 import { RequestParams } from "./http-client";
@@ -142,7 +142,7 @@ export const createPetApiQuery = (api: Pet<unknown>) => {
     const { query, requestParams = {} } = apiParams;
     return useQuery({
       ...queryOptions,
-      queryKey: createFindPetsByStatusQueryKey({ query, requestParams }),
+      queryKey: createFindPetsByStatusQueryKey({ query, requestParams }) as QueryKey,
       queryFn: () => {
         return api.findPetsByStatus(toValue(query)!, toValue(requestParams));
       },
@@ -182,7 +182,7 @@ export const createPetApiQuery = (api: Pet<unknown>) => {
     const { query, requestParams = {} } = apiParams;
     return useQuery({
       ...queryOptions,
-      queryKey: createFindPetsByTagsQueryKey({ query, requestParams }),
+      queryKey: createFindPetsByTagsQueryKey({ query, requestParams }) as QueryKey,
       queryFn: () => {
         return api.findPetsByTags(toValue(query)!, toValue(requestParams));
       },
@@ -215,7 +215,7 @@ export const createPetApiQuery = (api: Pet<unknown>) => {
     const { petId, requestParams = {} } = apiParams;
     return useQuery({
       ...queryOptions,
-      queryKey: createGetPetByIdQueryKey({ petId, requestParams }),
+      queryKey: createGetPetByIdQueryKey({ petId, requestParams }) as QueryKey,
       queryFn: () => {
         return api.getPetById(toValue(petId)!, toValue(requestParams));
       },
@@ -447,7 +447,7 @@ export const createStoreApiQuery = (api: Store<unknown>) => {
     const { orderId, requestParams = {} } = apiParams;
     return useQuery({
       ...queryOptions,
-      queryKey: createGetOrderByIdQueryKey({ orderId, requestParams }),
+      queryKey: createGetOrderByIdQueryKey({ orderId, requestParams }) as QueryKey,
       queryFn: () => {
         return api.getOrderById(toValue(orderId)!, toValue(requestParams));
       },
@@ -498,7 +498,7 @@ export const createStoreApiQuery = (api: Store<unknown>) => {
     const { requestParams = {} } = apiParams;
     return useQuery({
       ...queryOptions,
-      queryKey: createGetInventoryQueryKey({ requestParams }),
+      queryKey: createGetInventoryQueryKey({ requestParams }) as QueryKey,
       queryFn: () => {
         return api.getInventory(toValue(requestParams));
       },
@@ -625,7 +625,7 @@ export const createUserApiQuery = (api: User<unknown>) => {
     const { username, requestParams = {} } = apiParams;
     return useQuery({
       ...queryOptions,
-      queryKey: createGetUserByNameQueryKey({ username, requestParams }),
+      queryKey: createGetUserByNameQueryKey({ username, requestParams }) as QueryKey,
       queryFn: () => {
         return api.getUserByName(toValue(username)!, toValue(requestParams));
       },
@@ -708,7 +708,7 @@ export const createUserApiQuery = (api: User<unknown>) => {
     const { query, requestParams = {} } = apiParams;
     return useQuery({
       ...queryOptions,
-      queryKey: createLoginUserQueryKey({ query, requestParams }),
+      queryKey: createLoginUserQueryKey({ query, requestParams }) as QueryKey,
       queryFn: () => {
         return api.loginUser(toValue(query)!, toValue(requestParams));
       },
@@ -742,7 +742,7 @@ export const createUserApiQuery = (api: User<unknown>) => {
     const { requestParams = {} } = apiParams;
     return useQuery({
       ...queryOptions,
-      queryKey: createLogoutUserQueryKey({ requestParams }),
+      queryKey: createLogoutUserQueryKey({ requestParams }) as QueryKey,
       queryFn: () => {
         return api.logoutUser(toValue(requestParams));
       },
