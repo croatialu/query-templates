@@ -2,6 +2,65 @@
 
 useQuery code generation template based on swagger-typescript-api and @tanstack/query
 
+## Install
+
+``` sh
+pnpm i @croatialu/query-templates -D
+```
+
+## Usage
+
+### Script
+``` ts
+generateApi({
+  input: resolve(process.cwd(), 'swagger.json'),
+  output: resolve(process.cwd(), '__generated__/api'),
+  name: 'api',
+  modular: true,
+  typePrefix: 'Type',
+  templates: resolve(process.cwd(), 'templates/modular'),
+  extraTemplates: [
+    // change the template file name
+    {
+      name: 'Queries',
+      // change the template file path
+      path: resolve(process.cwd(), 'node_modules/@croatialu/query-templates/dist/vue-query.ejs'),
+    },
+  ],
+})
+```
+
+### Vite
+
+``` sh
+# install vite plugin
+pnpm i vite-plugin-swagger-typescript-api -D
+```
+
+``` ts
+// vite.config.ts
+import { vitePluginSwaggerTypescriptApi } from 'vite-plugin-swagger-typescript-api'
+
+export default defineConfig({
+  plugins: [
+    // ...
+    vitePluginSwaggerTypescriptApi({
+      // ...
+      extraTemplates: [
+        // change the template file name
+        {
+          name: 'Queries',
+          // change the template file path
+          path: resolve(process.cwd(), 'node_modules/@croatialu/query-templates/dist/vue-query.ejs'),
+        },
+      ],
+      // ...
+    }),
+    // ...
+  ],
+})
+```
+
 ## Features
 - Automatically generate the queryKey creator
 - Automatically encapsulate api requests into useQuery and useMutation.
@@ -9,8 +68,8 @@ useQuery code generation template based on swagger-typescript-api and @tanstack/
 
 | template | react-query | vue-query |
 |--|--|--|
-| default | ✅ | ✅ |
-| modular | ✅ | ✅ |
+| default | ✅ react-query.ejs | ✅ vue-query.ejs |
+| modular | ✅ react-query-modular.ejs | ✅ vue-query-modular.ejs |
 
  [![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/~/github.com/croatialu/query-templates?file=src/api/react-default.ts)
 
