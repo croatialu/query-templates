@@ -1,7 +1,7 @@
 {
   "name": "@croatialu/query-templates",
   "type": "module",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "packageManager": "pnpm@9.11.0",
   "description": "_description_",
   "author": "Croatia Lu <wuli.croatia@foxmail.com>",
