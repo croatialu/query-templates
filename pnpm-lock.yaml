@@ -7,19 +7,6 @@ settings:
 importers:
 
   .:
-    dependencies:
-      '@tanstack/vue-query':
-        specifier: ^5.56.2
-        version: 5.56.2(vue@3.5.10(typescript@5.6.2))
-      axios:
-        specifier: ^1.7.7
-        version: 1.7.7
-      swagger-typescript-api:
-        specifier: ^13.0.22
-        version: 13.0.22(encoding@0.1.13)
-      vue:
-        specifier: ^3.5.10
-        version: 3.5.10(typescript@5.6.2)
     devDependencies:
       '@antfu/eslint-config':
         specifier: ^2.27.3
@@ -33,9 +20,15 @@ importers:
       '@tanstack/react-query':
         specifier: ^5.56.2
         version: 5.56.2(react@18.3.1)
+      '@tanstack/vue-query':
+        specifier: ^5.56.2
+        version: 5.56.2(vue@3.5.10(typescript@5.6.2))
       '@types/node':
         specifier: ^20.16.10
         version: 20.16.10
+      axios:
+        specifier: ^1.7.7
+        version: 1.7.7
       bumpp:
         specifier: ^9.6.1
         version: 9.6.1
@@ -57,6 +50,9 @@ importers:
       simple-git-hooks:
         specifier: ^2.11.1
         version: 2.11.1
+      swagger-typescript-api:
+        specifier: ^13.0.22
+        version: 13.0.22(encoding@0.1.13)
       taze:
         specifier: ^0.16.9
         version: 0.16.9
@@ -72,6 +68,9 @@ importers:
       vitest:
         specifier: ^2.1.1
         version: 2.1.1(@types/node@20.16.10)
+      vue:
+        specifier: ^3.5.10
+        version: 3.5.10(typescript@5.6.2)
 
 packages:
 
