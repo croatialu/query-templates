@@ -14,7 +14,7 @@ const isAxiosHttpClient = config.httpClientType === config.constants.HTTP_CLIENT
 
 const createResponseGeneric = (response, error) => {
   if(config.unwrapResponseData) {
-    return `${response}`
+    return `${response}, ${error}`
   }
 
   return `${isAxiosHttpClient ? 'AxiosResponse' : 'HttpResponse'}<${response}, ${error}>`
