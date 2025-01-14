@@ -14,7 +14,7 @@ const isAxiosHttpClient = config.httpClientType === config.constants.HTTP_CLIENT
 
 const createResponseGeneric = (response, error) => {
   if(config.unwrapResponseData) {
-    return `${response}`
+    return response
   }
 
   return `${isAxiosHttpClient ? 'AxiosResponse' : 'HttpResponse'}<${response}, ${error}>`
@@ -144,7 +144,9 @@ import { HttpClient, RequestParams, ContentType, HttpResponse } from "./<%~ conf
 
 */
 
-type CustomQueryOptions<T, E> = MaybeRef<Omit<UnwrapRef<UseQueryOptions< <%~ createResponseGeneric('T', 'E') %> >>, 'queryKey' | 'queryFn'>>
+// @ts-ignore
+type CustomQueryOptions<T, E> = MaybeRef<Omit<UnwrapRef<UseQueryOptions< <%~ createResponseGeneric('T', 'E') %>, E >>, 'queryKey' | 'queryFn'>>
+// @ts-ignore
 type CustomMutationOptions<T, E, V> = Omit<MutationOptions< <%~ createResponseGeneric('T', 'E') %>, E, V >, 'mutationFn'>
 
 <% for (const combined of combinedArr) { %>

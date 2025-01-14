@@ -13,13 +13,13 @@ const QUERY_TYPE = 'react'
 
 const createResponseGeneric = (response, error) => {
   if(config.unwrapResponseData) {
-    return `${response}, ${error}`
+    return `${response}`
   }
 
   return `${isAxiosHttpClient ? 'AxiosResponse' : 'HttpResponse'}<${response}, ${error}>`
 }
 
-const createResponseType = (route) => {
+const createResponseTypeUnit = (route) => {
 
   const { response } = route
 
@@ -131,7 +131,7 @@ import {
 
 */
 // @ts-ignore
-type CustomQueryOptions<T, E> = Omit<UseQueryOptions< <%~ createResponseGeneric('T', 'E') %> >, 'queryKey' | 'queryFn'>
+type CustomQueryOptions<T, E> = Omit<UseQueryOptions< <%~ createResponseGeneric('T', 'E') %>, E>, 'queryKey' | 'queryFn'>
 // @ts-ignore
 type CustomMutationOptions<T, E, V> = Omit<MutationOptions< <%~ createResponseGeneric('T', 'E') %>, E, V>, 'mutationFn'>
 
@@ -189,7 +189,7 @@ type CustomMutationOptions<T, E, V> = Omit<MutationOptions< <%~ createResponseGe
         const mutationOptionTypeName = `CustomMutationOptions<${response.type}, ${response.errorType}, ${queryParamsTypeTmplStr}>`
 
         const queryKeyValueTmplStr = createQueryKeyTmplStr(moduleName, request, baseArgs.map(v => v.name))
-        const responseType = createResponseType(route)
+        const responseType = createResponseTypeUnit(route)
         %>
 
         /**
@@ -249,7 +249,7 @@ type CustomMutationOptions<T, E, V> = Omit<MutationOptions< <%~ createResponseGe
       <% 
       const { request } = route
       const { baseArgs } = parseRouteArgs(route)
-      const responseType = createResponseType(route)
+      const responseType = createResponseTypeUnit(route)
       const queryKeyTypeTmplStr = createQueryKeyTmplStr(moduleName, request, baseArgs.map(v => v.type))
 
       %>

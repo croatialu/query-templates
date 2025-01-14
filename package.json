@@ -46,7 +46,7 @@
     "postrelease": "npx cnpm sync @croatialu/query-templates",
     "compile": "esno src/index.ts",
     "test": "vitest",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit --project tsconfig.generated.json",
     "up": "taze major -I",
     "prepare": "simple-git-hooks"
   },

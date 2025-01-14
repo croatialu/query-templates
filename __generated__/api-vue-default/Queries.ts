@@ -20,7 +20,9 @@ import { Api, RequestParams, TypeApiResponse, TypeOrder, TypePet, TypeUser } fro
   This is a sample server Petstore server.  You can find out more about Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).  For this sample, you can use the api key `special-key` to test the authorization filters.
 */
 // @ts-ignore
-type CustomQueryOptions<T, E> = MaybeRef<Omit<UnwrapRef<UseQueryOptions<AxiosResponse<T, E>>>, "queryKey" | "queryFn">>;
+type CustomQueryOptions<T, E> = MaybeRef<
+  Omit<UnwrapRef<UseQueryOptions<AxiosResponse<T, E>, E>>, "queryKey" | "queryFn">
+>;
 // @ts-ignore
 type CustomMutationOptions<T, E, V> = Omit<MutationOptions<AxiosResponse<T, E>, E, V>, "mutationFn">;
 

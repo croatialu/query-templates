@@ -9,15 +9,9 @@
  * ---------------------------------------------------------------
  */
 
-import {
-  MutationOptions,
-  QueryKey,
-  useMutation,
-  useQuery,
-  useQueryClient,
-  UseQueryOptions,
-} from "@tanstack/react-query";
-import type { AxiosResponse } from "axios";
+import { MutationOptions, QueryKey, useMutation, useQuery, useQueryClient, UseQueryOptions } from "@tanstack/vue-query";
+import { MaybeRef, toValue, UnwrapRef } from "vue";
+
 import { Api, RequestParams, TypeApiResponse, TypeOrder, TypePet, TypeUser } from "./api";
 
 /**
@@ -26,9 +20,9 @@ import { Api, RequestParams, TypeApiResponse, TypeOrder, TypePet, TypeUser } fro
   This is a sample server Petstore server.  You can find out more about Swagger at [http://swagger.io](http://swagger.io) or on [irc.freenode.net, #swagger](http://swagger.io/irc/).  For this sample, you can use the api key `special-key` to test the authorization filters.
 */
 // @ts-ignore
-type CustomQueryOptions<T, E> = Omit<UseQueryOptions<AxiosResponse<T, E>, E>, "queryKey" | "queryFn">;
+type CustomQueryOptions<T, E> = MaybeRef<Omit<UnwrapRef<UseQueryOptions<T, E>>, "queryKey" | "queryFn">>;
 // @ts-ignore
-type CustomMutationOptions<T, E, V> = Omit<MutationOptions<AxiosResponse<T, E>, E, V>, "mutationFn">;
+type CustomMutationOptions<T, E, V> = Omit<MutationOptions<T, E, V>, "mutationFn">;
 
 export const createPetApiQuery = (api: Api<unknown>) => {
   /**
@@ -70,7 +64,7 @@ export const createPetApiQuery = (api: Api<unknown>) => {
       }) => {
         const { petId, data, requestParams = {} } = apiParams;
 
-        return api.pet.uploadFile(petId, data, requestParams);
+        return api.pet.uploadFile(petId!, data!, requestParams);
       },
     });
   }
@@ -92,7 +86,7 @@ export const createPetApiQuery = (api: Api<unknown>) => {
       mutationFn: (apiParams: { body: TypePet; requestParams?: RequestParams }) => {
         const { body, requestParams = {} } = apiParams;
 
-        return api.pet.addPet(body, requestParams);
+        return api.pet.addPet(body!, requestParams);
       },
     });
   }
@@ -114,7 +108,7 @@ export const createPetApiQuery = (api: Api<unknown>) => {
       mutationFn: (apiParams: { body: TypePet; requestParams?: RequestParams }) => {
         const { body, requestParams = {} } = apiParams;
 
-        return api.pet.updatePet(body, requestParams);
+        return api.pet.updatePet(body!, requestParams);
       },
     });
   }
@@ -130,11 +124,11 @@ export const createPetApiQuery = (api: Api<unknown>) => {
    */
   function useFindPetsByStatus(
     apiParams: {
-      query: {
+      query: MaybeRef<{
         /** Status values that need to be considered for filter */
         status: ("available" | "pending" | "sold")[];
-      };
-      requestParams?: RequestParams;
+      }>;
+      requestParams?: MaybeRef<RequestParams>;
     },
     queryOptions: CustomQueryOptions<TypePet[], void> = {},
   ) {
@@ -143,16 +137,16 @@ export const createPetApiQuery = (api: Api<unknown>) => {
       ...queryOptions,
       queryKey: createFindPetsByStatusQueryKey({ query, requestParams }) as QueryKey,
       queryFn: () => {
-        return api.pet.findPetsByStatus(query, requestParams);
+        return api.pet.findPetsByStatus(toValue(query)!, toValue(requestParams));
       },
     });
   }
   function createFindPetsByStatusQueryKey(apiParams: {
-    query: {
+    query: MaybeRef<{
       /** Status values that need to be considered for filter */
       status: ("available" | "pending" | "sold")[];
-    };
-    requestParams?: RequestParams;
+    }>;
+    requestParams?: MaybeRef<RequestParams>;
   }) {
     const { query, requestParams = {} } = apiParams;
     return ["swagger-typescript-api", "pet", "get", "/pet/findByStatus", query, requestParams] as const;
@@ -170,11 +164,11 @@ export const createPetApiQuery = (api: Api<unknown>) => {
    */
   function useFindPetsByTags(
     apiParams: {
-      query: {
+      query: MaybeRef<{
         /** Tags to filter by */
         tags: string[];
-      };
-      requestParams?: RequestParams;
+      }>;
+      requestParams?: MaybeRef<RequestParams>;
     },
     queryOptions: CustomQueryOptions<TypePet[], void> = {},
   ) {
@@ -183,16 +177,16 @@ export const createPetApiQuery = (api: Api<unknown>) => {
       ...queryOptions,
       queryKey: createFindPetsByTagsQueryKey({ query, requestParams }) as QueryKey,
       queryFn: () => {
-        return api.pet.findPetsByTags(query, requestParams);
+        return api.pet.findPetsByTags(toValue(query)!, toValue(requestParams));
       },
     });
   }
   function createFindPetsByTagsQueryKey(apiParams: {
-    query: {
+    query: MaybeRef<{
       /** Tags to filter by */
       tags: string[];
-    };
-    requestParams?: RequestParams;
+    }>;
+    requestParams?: MaybeRef<RequestParams>;
   }) {
     const { query, requestParams = {} } = apiParams;
     return ["swagger-typescript-api", "pet", "get", "/pet/findByTags", query, requestParams] as const;
@@ -208,7 +202,7 @@ export const createPetApiQuery = (api: Api<unknown>) => {
    * @secure
    */
   function useGetPetById(
-    apiParams: { petId: number; requestParams?: RequestParams },
+    apiParams: { petId: MaybeRef<number>; requestParams?: MaybeRef<RequestParams> },
     queryOptions: CustomQueryOptions<TypePet, void> = {},
   ) {
     const { petId, requestParams = {} } = apiParams;
@@ -216,11 +210,11 @@ export const createPetApiQuery = (api: Api<unknown>) => {
       ...queryOptions,
       queryKey: createGetPetByIdQueryKey({ petId, requestParams }) as QueryKey,
       queryFn: () => {
-        return api.pet.getPetById(petId, requestParams);
+        return api.pet.getPetById(toValue(petId)!, toValue(requestParams));
       },
     });
   }
-  function createGetPetByIdQueryKey(apiParams: { petId: number; requestParams?: RequestParams }) {
+  function createGetPetByIdQueryKey(apiParams: { petId: MaybeRef<number>; requestParams?: MaybeRef<RequestParams> }) {
     const { petId, requestParams = {} } = apiParams;
     return ["swagger-typescript-api", "pet", "get", "/pet/${petId}", petId, requestParams] as const;
   }
@@ -264,7 +258,7 @@ export const createPetApiQuery = (api: Api<unknown>) => {
       }) => {
         const { petId, data, requestParams = {} } = apiParams;
 
-        return api.pet.updatePetWithForm(petId, data, requestParams);
+        return api.pet.updatePetWithForm(petId!, data!, requestParams);
       },
     });
   }
@@ -286,7 +280,7 @@ export const createPetApiQuery = (api: Api<unknown>) => {
       mutationFn: (apiParams: { petId: number; requestParams?: RequestParams }) => {
         const { petId, requestParams = {} } = apiParams;
 
-        return api.pet.deletePet(petId, requestParams);
+        return api.pet.deletePet(petId!, requestParams);
       },
     });
   }
@@ -316,78 +310,92 @@ export function usePetApiQueryUpdate() {
       "pet",
       "post",
       "/pet/${petId}/uploadImage",
-      number,
-      {
+      MaybeRef<number>,
+      MaybeRef<{
         /** Additional data to pass to server */
         additionalMetadata?: string;
         /** file to upload */
         file?: File;
-      },
-      RequestParams,
+      }>,
+      MaybeRef<RequestParams>,
     ],
-    updater: (data: AxiosResponse<TypeApiResponse, any>) => AxiosResponse<TypeApiResponse, any>,
-  ): Promise<AxiosResponse<TypeApiResponse, any>>;
+    updater: (data: TypeApiResponse) => TypeApiResponse,
+  ): Promise<TypeApiResponse>;
   function setQueryData(
-    queryKey: readonly ["swagger-typescript-api", "pet", "post", "/pet", TypePet, RequestParams],
-    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
-  ): Promise<AxiosResponse<any, void>>;
+    queryKey: readonly ["swagger-typescript-api", "pet", "post", "/pet", MaybeRef<TypePet>, MaybeRef<RequestParams>],
+    updater: (data: any) => any,
+  ): Promise<any>;
   function setQueryData(
-    queryKey: readonly ["swagger-typescript-api", "pet", "put", "/pet", TypePet, RequestParams],
-    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
-  ): Promise<AxiosResponse<any, void>>;
+    queryKey: readonly ["swagger-typescript-api", "pet", "put", "/pet", MaybeRef<TypePet>, MaybeRef<RequestParams>],
+    updater: (data: any) => any,
+  ): Promise<any>;
   function setQueryData(
     queryKey: readonly [
       "swagger-typescript-api",
       "pet",
       "get",
       "/pet/findByStatus",
-      {
+      MaybeRef<{
         /** Status values that need to be considered for filter */
         status: ("available" | "pending" | "sold")[];
-      },
-      RequestParams,
+      }>,
+      MaybeRef<RequestParams>,
     ],
-    updater: (data: AxiosResponse<TypePet[], void>) => AxiosResponse<TypePet[], void>,
-  ): Promise<AxiosResponse<TypePet[], void>>;
+    updater: (data: TypePet[]) => TypePet[],
+  ): Promise<TypePet[]>;
   function setQueryData(
     queryKey: readonly [
       "swagger-typescript-api",
       "pet",
       "get",
       "/pet/findByTags",
-      {
+      MaybeRef<{
         /** Tags to filter by */
         tags: string[];
-      },
-      RequestParams,
+      }>,
+      MaybeRef<RequestParams>,
     ],
-    updater: (data: AxiosResponse<TypePet[], void>) => AxiosResponse<TypePet[], void>,
-  ): Promise<AxiosResponse<TypePet[], void>>;
+    updater: (data: TypePet[]) => TypePet[],
+  ): Promise<TypePet[]>;
   function setQueryData(
-    queryKey: readonly ["swagger-typescript-api", "pet", "get", "/pet/${petId}", number, RequestParams],
-    updater: (data: AxiosResponse<TypePet, void>) => AxiosResponse<TypePet, void>,
-  ): Promise<AxiosResponse<TypePet, void>>;
+    queryKey: readonly [
+      "swagger-typescript-api",
+      "pet",
+      "get",
+      "/pet/${petId}",
+      MaybeRef<number>,
+      MaybeRef<RequestParams>,
+    ],
+    updater: (data: TypePet) => TypePet,
+  ): Promise<TypePet>;
   function setQueryData(
     queryKey: readonly [
       "swagger-typescript-api",
       "pet",
       "post",
       "/pet/${petId}",
-      number,
-      {
+      MaybeRef<number>,
+      MaybeRef<{
         /** Updated name of the pet */
         name?: string;
         /** Updated status of the pet */
         status?: string;
-      },
-      RequestParams,
+      }>,
+      MaybeRef<RequestParams>,
     ],
-    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
-  ): Promise<AxiosResponse<any, void>>;
+    updater: (data: any) => any,
+  ): Promise<any>;
   function setQueryData(
-    queryKey: readonly ["swagger-typescript-api", "pet", "delete", "/pet/${petId}", number, RequestParams],
-    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
-  ): Promise<AxiosResponse<any, void>>;
+    queryKey: readonly [
+      "swagger-typescript-api",
+      "pet",
+      "delete",
+      "/pet/${petId}",
+      MaybeRef<number>,
+      MaybeRef<RequestParams>,
+    ],
+    updater: (data: any) => any,
+  ): Promise<any>;
   function setQueryData(queryKey: any, updater: any) {
     return queryClient.setQueryData(queryKey, updater);
   }
@@ -412,7 +420,7 @@ export const createStoreApiQuery = (api: Api<unknown>) => {
       mutationFn: (apiParams: { body: TypeOrder; requestParams?: RequestParams }) => {
         const { body, requestParams = {} } = apiParams;
 
-        return api.store.placeOrder(body, requestParams);
+        return api.store.placeOrder(body!, requestParams);
       },
     });
   }
@@ -426,7 +434,7 @@ export const createStoreApiQuery = (api: Api<unknown>) => {
    * @request GET:/store/order/{orderId}
    */
   function useGetOrderById(
-    apiParams: { orderId: number; requestParams?: RequestParams },
+    apiParams: { orderId: MaybeRef<number>; requestParams?: MaybeRef<RequestParams> },
     queryOptions: CustomQueryOptions<TypeOrder, void> = {},
   ) {
     const { orderId, requestParams = {} } = apiParams;
@@ -434,11 +442,14 @@ export const createStoreApiQuery = (api: Api<unknown>) => {
       ...queryOptions,
       queryKey: createGetOrderByIdQueryKey({ orderId, requestParams }) as QueryKey,
       queryFn: () => {
-        return api.store.getOrderById(orderId, requestParams);
+        return api.store.getOrderById(toValue(orderId)!, toValue(requestParams));
       },
     });
   }
-  function createGetOrderByIdQueryKey(apiParams: { orderId: number; requestParams?: RequestParams }) {
+  function createGetOrderByIdQueryKey(apiParams: {
+    orderId: MaybeRef<number>;
+    requestParams?: MaybeRef<RequestParams>;
+  }) {
     const { orderId, requestParams = {} } = apiParams;
     return ["swagger-typescript-api", "store", "get", "/store/order/${orderId}", orderId, requestParams] as const;
   }
@@ -459,7 +470,7 @@ export const createStoreApiQuery = (api: Api<unknown>) => {
       mutationFn: (apiParams: { orderId: number; requestParams?: RequestParams }) => {
         const { orderId, requestParams = {} } = apiParams;
 
-        return api.store.deleteOrder(orderId, requestParams);
+        return api.store.deleteOrder(orderId!, requestParams);
       },
     });
   }
@@ -474,7 +485,7 @@ export const createStoreApiQuery = (api: Api<unknown>) => {
    * @secure
    */
   function useGetInventory(
-    apiParams: { requestParams?: RequestParams },
+    apiParams: { requestParams?: MaybeRef<RequestParams> },
     queryOptions: CustomQueryOptions<Record<string, number>, any> = {},
   ) {
     const { requestParams = {} } = apiParams;
@@ -482,11 +493,11 @@ export const createStoreApiQuery = (api: Api<unknown>) => {
       ...queryOptions,
       queryKey: createGetInventoryQueryKey({ requestParams }) as QueryKey,
       queryFn: () => {
-        return api.store.getInventory(requestParams);
+        return api.store.getInventory(toValue(requestParams));
       },
     });
   }
-  function createGetInventoryQueryKey(apiParams: { requestParams?: RequestParams }) {
+  function createGetInventoryQueryKey(apiParams: { requestParams?: MaybeRef<RequestParams> }) {
     const { requestParams = {} } = apiParams;
     return ["swagger-typescript-api", "store", "get", "/store/inventory", requestParams] as const;
   }
@@ -506,21 +517,42 @@ export function useStoreApiQueryUpdate() {
   const queryClient = useQueryClient();
 
   function setQueryData(
-    queryKey: readonly ["swagger-typescript-api", "store", "post", "/store/order", TypeOrder, RequestParams],
-    updater: (data: AxiosResponse<TypeOrder, void>) => AxiosResponse<TypeOrder, void>,
-  ): Promise<AxiosResponse<TypeOrder, void>>;
+    queryKey: readonly [
+      "swagger-typescript-api",
+      "store",
+      "post",
+      "/store/order",
+      MaybeRef<TypeOrder>,
+      MaybeRef<RequestParams>,
+    ],
+    updater: (data: TypeOrder) => TypeOrder,
+  ): Promise<TypeOrder>;
   function setQueryData(
-    queryKey: readonly ["swagger-typescript-api", "store", "get", "/store/order/${orderId}", number, RequestParams],
-    updater: (data: AxiosResponse<TypeOrder, void>) => AxiosResponse<TypeOrder, void>,
-  ): Promise<AxiosResponse<TypeOrder, void>>;
+    queryKey: readonly [
+      "swagger-typescript-api",
+      "store",
+      "get",
+      "/store/order/${orderId}",
+      MaybeRef<number>,
+      MaybeRef<RequestParams>,
+    ],
+    updater: (data: TypeOrder) => TypeOrder,
+  ): Promise<TypeOrder>;
   function setQueryData(
-    queryKey: readonly ["swagger-typescript-api", "store", "delete", "/store/order/${orderId}", number, RequestParams],
-    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
-  ): Promise<AxiosResponse<any, void>>;
+    queryKey: readonly [
+      "swagger-typescript-api",
+      "store",
+      "delete",
+      "/store/order/${orderId}",
+      MaybeRef<number>,
+      MaybeRef<RequestParams>,
+    ],
+    updater: (data: any) => any,
+  ): Promise<any>;
   function setQueryData(
-    queryKey: readonly ["swagger-typescript-api", "store", "get", "/store/inventory", RequestParams],
-    updater: (data: AxiosResponse<Record<string, number>, any>) => AxiosResponse<Record<string, number>, any>,
-  ): Promise<AxiosResponse<Record<string, number>, any>>;
+    queryKey: readonly ["swagger-typescript-api", "store", "get", "/store/inventory", MaybeRef<RequestParams>],
+    updater: (data: Record<string, number>) => Record<string, number>,
+  ): Promise<Record<string, number>>;
   function setQueryData(queryKey: any, updater: any) {
     return queryClient.setQueryData(queryKey, updater);
   }
@@ -545,7 +577,7 @@ export const createUserApiQuery = (api: Api<unknown>) => {
       mutationFn: (apiParams: { body: TypeUser[]; requestParams?: RequestParams }) => {
         const { body, requestParams = {} } = apiParams;
 
-        return api.user.createUsersWithArrayInput(body, requestParams);
+        return api.user.createUsersWithArrayInput(body!, requestParams);
       },
     });
   }
@@ -566,7 +598,7 @@ export const createUserApiQuery = (api: Api<unknown>) => {
       mutationFn: (apiParams: { body: TypeUser[]; requestParams?: RequestParams }) => {
         const { body, requestParams = {} } = apiParams;
 
-        return api.user.createUsersWithListInput(body, requestParams);
+        return api.user.createUsersWithListInput(body!, requestParams);
       },
     });
   }
@@ -580,7 +612,7 @@ export const createUserApiQuery = (api: Api<unknown>) => {
    * @request GET:/user/{username}
    */
   function useGetUserByName(
-    apiParams: { username: string; requestParams?: RequestParams },
+    apiParams: { username: MaybeRef<string>; requestParams?: MaybeRef<RequestParams> },
     queryOptions: CustomQueryOptions<TypeUser, void> = {},
   ) {
     const { username, requestParams = {} } = apiParams;
@@ -588,11 +620,14 @@ export const createUserApiQuery = (api: Api<unknown>) => {
       ...queryOptions,
       queryKey: createGetUserByNameQueryKey({ username, requestParams }) as QueryKey,
       queryFn: () => {
-        return api.user.getUserByName(username, requestParams);
+        return api.user.getUserByName(toValue(username)!, toValue(requestParams));
       },
     });
   }
-  function createGetUserByNameQueryKey(apiParams: { username: string; requestParams?: RequestParams }) {
+  function createGetUserByNameQueryKey(apiParams: {
+    username: MaybeRef<string>;
+    requestParams?: MaybeRef<RequestParams>;
+  }) {
     const { username, requestParams = {} } = apiParams;
     return ["swagger-typescript-api", "user", "get", "/user/${username}", username, requestParams] as const;
   }
@@ -617,7 +652,7 @@ export const createUserApiQuery = (api: Api<unknown>) => {
       mutationFn: (apiParams: { username: string; body: TypeUser; requestParams?: RequestParams }) => {
         const { username, body, requestParams = {} } = apiParams;
 
-        return api.user.updateUser(username, body, requestParams);
+        return api.user.updateUser(username!, body!, requestParams);
       },
     });
   }
@@ -638,7 +673,7 @@ export const createUserApiQuery = (api: Api<unknown>) => {
       mutationFn: (apiParams: { username: string; requestParams?: RequestParams }) => {
         const { username, requestParams = {} } = apiParams;
 
-        return api.user.deleteUser(username, requestParams);
+        return api.user.deleteUser(username!, requestParams);
       },
     });
   }
@@ -653,13 +688,13 @@ export const createUserApiQuery = (api: Api<unknown>) => {
    */
   function useLoginUser(
     apiParams: {
-      query: {
+      query: MaybeRef<{
         /** The user name for login */
         username: string;
         /** The password for login in clear text */
         password: string;
-      };
-      requestParams?: RequestParams;
+      }>;
+      requestParams?: MaybeRef<RequestParams>;
     },
     queryOptions: CustomQueryOptions<string, void> = {},
   ) {
@@ -668,18 +703,18 @@ export const createUserApiQuery = (api: Api<unknown>) => {
       ...queryOptions,
       queryKey: createLoginUserQueryKey({ query, requestParams }) as QueryKey,
       queryFn: () => {
-        return api.user.loginUser(query, requestParams);
+        return api.user.loginUser(toValue(query)!, toValue(requestParams));
       },
     });
   }
   function createLoginUserQueryKey(apiParams: {
-    query: {
+    query: MaybeRef<{
       /** The user name for login */
       username: string;
       /** The password for login in clear text */
       password: string;
-    };
-    requestParams?: RequestParams;
+    }>;
+    requestParams?: MaybeRef<RequestParams>;
   }) {
     const { query, requestParams = {} } = apiParams;
     return ["swagger-typescript-api", "user", "get", "/user/login", query, requestParams] as const;
@@ -694,7 +729,7 @@ export const createUserApiQuery = (api: Api<unknown>) => {
    * @request GET:/user/logout
    */
   function useLogoutUser(
-    apiParams: { requestParams?: RequestParams },
+    apiParams: { requestParams?: MaybeRef<RequestParams> },
     queryOptions: CustomQueryOptions<any, void> = {},
   ) {
     const { requestParams = {} } = apiParams;
@@ -702,11 +737,11 @@ export const createUserApiQuery = (api: Api<unknown>) => {
       ...queryOptions,
       queryKey: createLogoutUserQueryKey({ requestParams }) as QueryKey,
       queryFn: () => {
-        return api.user.logoutUser(requestParams);
+        return api.user.logoutUser(toValue(requestParams));
       },
     });
   }
-  function createLogoutUserQueryKey(apiParams: { requestParams?: RequestParams }) {
+  function createLogoutUserQueryKey(apiParams: { requestParams?: MaybeRef<RequestParams> }) {
     const { requestParams = {} } = apiParams;
     return ["swagger-typescript-api", "user", "get", "/user/logout", requestParams] as const;
   }
@@ -727,7 +762,7 @@ export const createUserApiQuery = (api: Api<unknown>) => {
       mutationFn: (apiParams: { body: TypeUser; requestParams?: RequestParams }) => {
         const { body, requestParams = {} } = apiParams;
 
-        return api.user.createUser(body, requestParams);
+        return api.user.createUser(body!, requestParams);
       },
     });
   }
@@ -752,49 +787,85 @@ export function useUserApiQueryUpdate() {
   const queryClient = useQueryClient();
 
   function setQueryData(
-    queryKey: readonly ["swagger-typescript-api", "user", "post", "/user/createWithArray", TypeUser[], RequestParams],
-    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
-  ): Promise<AxiosResponse<any, void>>;
+    queryKey: readonly [
+      "swagger-typescript-api",
+      "user",
+      "post",
+      "/user/createWithArray",
+      MaybeRef<TypeUser[]>,
+      MaybeRef<RequestParams>,
+    ],
+    updater: (data: any) => any,
+  ): Promise<any>;
   function setQueryData(
-    queryKey: readonly ["swagger-typescript-api", "user", "post", "/user/createWithList", TypeUser[], RequestParams],
-    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
-  ): Promise<AxiosResponse<any, void>>;
+    queryKey: readonly [
+      "swagger-typescript-api",
+      "user",
+      "post",
+      "/user/createWithList",
+      MaybeRef<TypeUser[]>,
+      MaybeRef<RequestParams>,
+    ],
+    updater: (data: any) => any,
+  ): Promise<any>;
   function setQueryData(
-    queryKey: readonly ["swagger-typescript-api", "user", "get", "/user/${username}", string, RequestParams],
-    updater: (data: AxiosResponse<TypeUser, void>) => AxiosResponse<TypeUser, void>,
-  ): Promise<AxiosResponse<TypeUser, void>>;
+    queryKey: readonly [
+      "swagger-typescript-api",
+      "user",
+      "get",
+      "/user/${username}",
+      MaybeRef<string>,
+      MaybeRef<RequestParams>,
+    ],
+    updater: (data: TypeUser) => TypeUser,
+  ): Promise<TypeUser>;
   function setQueryData(
-    queryKey: readonly ["swagger-typescript-api", "user", "put", "/user/${username}", string, TypeUser, RequestParams],
-    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
-  ): Promise<AxiosResponse<any, void>>;
+    queryKey: readonly [
+      "swagger-typescript-api",
+      "user",
+      "put",
+      "/user/${username}",
+      MaybeRef<string>,
+      MaybeRef<TypeUser>,
+      MaybeRef<RequestParams>,
+    ],
+    updater: (data: any) => any,
+  ): Promise<any>;
   function setQueryData(
-    queryKey: readonly ["swagger-typescript-api", "user", "delete", "/user/${username}", string, RequestParams],
-    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
-  ): Promise<AxiosResponse<any, void>>;
+    queryKey: readonly [
+      "swagger-typescript-api",
+      "user",
+      "delete",
+      "/user/${username}",
+      MaybeRef<string>,
+      MaybeRef<RequestParams>,
+    ],
+    updater: (data: any) => any,
+  ): Promise<any>;
   function setQueryData(
     queryKey: readonly [
       "swagger-typescript-api",
       "user",
       "get",
       "/user/login",
-      {
+      MaybeRef<{
         /** The user name for login */
         username: string;
         /** The password for login in clear text */
         password: string;
-      },
-      RequestParams,
+      }>,
+      MaybeRef<RequestParams>,
     ],
-    updater: (data: AxiosResponse<string, void>) => AxiosResponse<string, void>,
-  ): Promise<AxiosResponse<string, void>>;
+    updater: (data: string) => string,
+  ): Promise<string>;
   function setQueryData(
-    queryKey: readonly ["swagger-typescript-api", "user", "get", "/user/logout", RequestParams],
-    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
-  ): Promise<AxiosResponse<any, void>>;
+    queryKey: readonly ["swagger-typescript-api", "user", "get", "/user/logout", MaybeRef<RequestParams>],
+    updater: (data: any) => any,
+  ): Promise<any>;
   function setQueryData(
-    queryKey: readonly ["swagger-typescript-api", "user", "post", "/user", TypeUser, RequestParams],
-    updater: (data: AxiosResponse<any, void>) => AxiosResponse<any, void>,
-  ): Promise<AxiosResponse<any, void>>;
+    queryKey: readonly ["swagger-typescript-api", "user", "post", "/user", MaybeRef<TypeUser>, MaybeRef<RequestParams>],
+    updater: (data: any) => any,
+  ): Promise<any>;
   function setQueryData(queryKey: any, updater: any) {
     return queryClient.setQueryData(queryKey, updater);
   }
