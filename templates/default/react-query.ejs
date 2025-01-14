@@ -13,7 +13,7 @@ const QUERY_TYPE = 'react'
 
 const createResponseGeneric = (response, error) => {
   if(config.unwrapResponseData) {
-    return `${response}`
+    return `${response}, ${error}`
   }
 
   return `${isAxiosHttpClient ? 'AxiosResponse' : 'HttpResponse'}<${response}, ${error}>`
@@ -130,8 +130,9 @@ import {
   <%= it.apiConfig.info.description %>
 
 */
-
+// @ts-ignore
 type CustomQueryOptions<T, E> = Omit<UseQueryOptions< <%~ createResponseGeneric('T', 'E') %> >, 'queryKey' | 'queryFn'>
+// @ts-ignore
 type CustomMutationOptions<T, E, V> = Omit<MutationOptions< <%~ createResponseGeneric('T', 'E') %>, E, V>, 'mutationFn'>
 
 <% for (const combined of combinedArr) { %>

@@ -139,8 +139,9 @@ import {
   <%= it.apiConfig.info.description %>
 
 */
-
+// @ts-ignore
 type CustomQueryOptions<T, E> = MaybeRef<Omit<UnwrapRef<UseQueryOptions< <%~ createResponseGeneric('T', 'E') %> >>, 'queryKey' | 'queryFn'>>
+// @ts-ignore
 type CustomMutationOptions<T, E, V> = Omit<MutationOptions< <%~ createResponseGeneric('T', 'E') %>, E, V >, 'mutationFn'>
 
 <% for (const combined of combinedArr) { %>
